@@ -1,0 +1,18 @@
+# Rust build artifacts
+/target/
+**/*.rs.bk
+*.pdb
+
+# Local SQLite databases & test logs
+*.sqlite
+*.sqlite-journal
+*.log
+
+# Installer builds (optional, but keep git repo clean)
+/dist/
+
+# OS and Editor metadata
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

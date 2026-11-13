@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Rustium Assistant",
+  "version": "1.0.0",
+  "description": "Официальный помощник Rustium: отображает индикатор безопасности и горячие клавиши",
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "css": ["content.css"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

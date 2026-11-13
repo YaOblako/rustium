@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Расширения - Rustium 1.1.1</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      border: none !important;
+      outline: none !important;
+      user-select: none;
+    }
+
+    :root {
+      --md-surface-lowest: #0f1416;
+      --md-surface-low: #171d1e;
+      --md-surface: #1b2123;
+      --md-surface-high: #252b2d;
+      --md-surface-highest: #303638;
+
+      --md-primary: #a8c7fa;
+      --md-on-primary: #003258;
+      --md-primary-container: #00497d;
+      --md-on-primary-container: #d3e3fd;
+
+      --md-secondary-container: #3c4858;
+      --md-on-secondary-container: #d7e3f8;
+
+      --md-on-surface: #e1e3e5;
+      --md-on-surface-variant: #c1c7ce;
+      --radius-pill: 9999px;
+      --radius-card: 16px;
+
+      font-family: Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    }
+
+    body {
+      background: var(--md-surface-lowest);
+      color: var(--md-on-surface);
+      min-height: 100vh;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--md-primary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .page-title svg {
+      width: 32px;
+      height: 32px;
+    }
+
+    .ext-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .ext-card {
+      background: var(--md-surface);
+      border-radius: var(--radius-card);
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      transition: background 0.15s ease;
+    }
+    .ext-card:hover {
+      background: var(--md-surface-high);
+    }
+
+    .ext-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex: 1;
+    }
+
+    .ext-avatar-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--md-surface-highest);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--md-primary);
+    }
+    .ext-avatar-box svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .ext-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .ext-name-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ext-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--md-on-surface);
+    }
+
+    .ext-ver {
+      font-size: 11px;
+      background: var(--md-surface-highest);
+      color: var(--md-on-surface-variant);
+      padding: 2px 8px;
+      border-radius: var(--radius-pill);
+    }
+
+    .ext-desc {
+      font-size: 13px;
+      color: var(--md-on-surface-variant);
+      line-height: 1.4;
+    }
+
+    .md3-switch {
+      width: 48px;
+      height: 26px;
+      background: var(--md-surface-highest);
+      border-radius: var(--radius-pill);
+      position: relative;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.2s ease;
+    }
+    .md3-switch.checked {
+      background: var(--md-primary);
+    }
+    .md3-switch-thumb {
+      width: 20px;
+      height: 20px;
+      background: var(--md-on-surface-variant);
+      border-radius: var(--radius-pill);
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), background 0.2s ease;
+    }
+    .md3-switch.checked .md3-switch-thumb {
+      transform: translateX(22px);
+      background: var(--md-on-primary);
+    }
+
+    .md3-btn {
+      height: 40px;
+      padding: 0 20px;
+      border-radius: var(--radius-pill);
+      background: var(--md-primary);
+      color: var(--md-on-primary);
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: opacity 0.15s ease;
+    }
+    .md3-btn:hover {
+      opacity: 0.9;
+    }
+    .md3-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header-row">
+      <div class="page-title">
+        <svg viewBox="0 0 24 24"><path d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5a2.5 2.5 0 0 0-5 0V5H4c-1.1 0-1.99.9-1.99 2v3.8H3.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7 1.49 0 2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5a2.5 2.5 0 0 0 0-5z" fill="currentColor"/></svg>
+        Расширения (WebExtensions)
+      </div>
+      <div class="md3-btn" onclick="loadUnpackedPrompt()">
+        <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" fill="currentColor"/></svg>
+        Загрузить распакованное...
+      </div>
+    </div>
+
+    <div class="ext-grid" id="extList">
+      <!-- Default Built-in Extensions matching Chrome/Firefox WebExtensions -->
+      <div class="ext-card">
+        <div class="ext-left">
+          <div class="ext-avatar-box">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="9" r="1.5" fill="currentColor"/><circle cx="15" cy="8" r="1.5" fill="currentColor"/><circle cx="13" cy="15" r="1.5" fill="currentColor"/><circle cx="9" cy="14" r="1" fill="currentColor"/></svg>
+          </div>
+          <div class="ext-info">
+            <div class="ext-name-row">
+              <span class="ext-name">Cookie-Editor</span>
+              <span class="ext-ver">v1.13.0</span>
+            </div>
+            <div class="ext-desc">Простой и мощный редактор cookies. Всегда может читать и изменять данные на посещаемых страницах.</div>
+            <div style="font-size:11px; color:var(--md-primary); font-family:monospace; margin-top:2px;">ID: cookie-editor@rustium</div>
+          </div>
+        </div>
+        <div class="md3-switch checked" onclick="this.classList.toggle('checked')">
+          <div class="md3-switch-thumb"></div>
+        </div>
+      </div>
+
+      <div class="ext-card">
+        <div class="ext-left">
+          <div class="ext-avatar-box" style="background:#263238; color:#fff; font-weight:700;">
+            R
+          </div>
+          <div class="ext-info">
+            <div class="ext-name-row">
+              <span class="ext-name">RoGold - Level Up Roblox</span>
+              <span class="ext-ver">v3.8.4</span>
+            </div>
+            <div class="ext-desc">Расширение для расширенной кастомизации и улучшенного взаимодействия с Roblox.</div>
+            <div style="font-size:11px; color:var(--md-primary); font-family:monospace; margin-top:2px;">ID: rogold-roblox@rustium</div>
+          </div>
+        </div>
+        <div class="md3-switch checked" onclick="this.classList.toggle('checked')">
+          <div class="md3-switch-thumb"></div>
+        </div>
+      </div>
+
+      <div class="ext-card">
+        <div class="ext-left">
+          <div class="ext-avatar-box" style="background:#1b1b1b; color:#fff;">
+            <svg viewBox="0 0 24 24"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-9 14H7v-2h3v2zm0-4H7v-2h3v2zm0-4H7V7h3v2zm7 8h-5v-2h5v2zm0-4h-5v-2h5v2zm0-4h-5V7h5v2z" fill="currentColor"/></svg>
+          </div>
+          <div class="ext-info">
+            <div class="ext-name-row">
+              <span class="ext-name">Tampermonkey</span>
+              <span class="ext-ver">v5.3.3</span>
+            </div>
+            <div class="ext-desc">Менеджер пользовательских скриптов (Userscripts) с полной поддержкой GM_ функций.</div>
+            <div style="font-size:11px; color:var(--md-primary); font-family:monospace; margin-top:2px;">ID: tampermonkey@rustium</div>
+          </div>
+        </div>
+        <div class="md3-switch checked" onclick="this.classList.toggle('checked')">
+          <div class="md3-switch-thumb"></div>
+        </div>
+      </div>
+
+      <div class="ext-card">
+        <div class="ext-left">
+          <div class="ext-avatar-box" style="background:#5865F2; color:#fff;">
+            <svg viewBox="0 0 24 24"><path d="M10 8.64L15.27 12 10 15.36V8.64M8 5v14l11-7L8 5z" fill="currentColor"/></svg>
+          </div>
+          <div class="ext-info">
+            <div class="ext-name-row">
+              <span class="ext-name">PreMiD</span>
+              <span class="ext-ver">v2.4.1</span>
+            </div>
+            <div class="ext-desc">Автоматическая синхронизация Rich Presence активности в Discord при просмотре веб-страниц.</div>
+            <div style="font-size:11px; color:var(--md-primary); font-family:monospace; margin-top:2px;">ID: premid-presence@rustium</div>
+          </div>
+        </div>
+        <div class="md3-switch checked" onclick="this.classList.toggle('checked')">
+          <div class="md3-switch-thumb"></div>
+        </div>
+      </div>
+
+      <div class="ext-card">
+        <div class="ext-left">
+          <div class="ext-avatar-box" style="background:#2e3440; color:#88c0d0;">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" fill="currentColor"/></svg>
+          </div>
+          <div class="ext-info">
+            <div class="ext-name-row">
+              <span class="ext-name">Equicord Web</span>
+              <span class="ext-ver">v1.2.0</span>
+            </div>
+            <div class="ext-desc">Расширенные плагины и клиентские модификации для веб-версий мессенджеров.</div>
+            <div style="font-size:11px; color:var(--md-primary); font-family:monospace; margin-top:2px;">ID: equicord-web@rustium</div>
+          </div>
+        </div>
+        <div class="md3-switch checked" onclick="this.classList.toggle('checked')">
+          <div class="md3-switch-thumb"></div>
+        </div>
+      </div>
+
+      <div class="ext-card">
+        <div class="ext-left">
+          <div class="ext-avatar-box" style="background:#c62828; color:#fff;">
+            <svg viewBox="0 0 24 24"><path d="M4 6H2v12h2V6zm14.5 6L11 7v10l7.5-5zm3.5-6h-2v12h2V6z" fill="currentColor"/></svg>
+          </div>
+          <div class="ext-info">
+            <div class="ext-name-row">
+              <span class="ext-name">YouTube Ad Auto-skipper</span>
+              <span class="ext-ver">v2.1.0</span>
+            </div>
+            <div class="ext-desc">Мгновенный пропуск рекламных пауз и баннеров в YouTube в фоновом режиме.</div>
+            <div style="font-size:11px; color:var(--md-primary); font-family:monospace; margin-top:2px;">ID: yt-ad-autoskipper@rustium</div>
+          </div>
+        </div>
+        <div class="md3-switch checked" onclick="this.classList.toggle('checked')">
+          <div class="md3-switch-thumb"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function loadUnpackedPrompt() {
+      const path = prompt("Введите абсолютный или относительный путь к папке с manifest.json:", "extensions/sample_helper");
+      if (path && window.ipc) {
+        window.ipc.postMessage(JSON.stringify({
+          action: "load_unpacked_extension",
+          path: path
+        }));
+      }
+    }
+
+    function toggleExt(id, current) {
+      if (window.ipc) {
+        window.ipc.postMessage(JSON.stringify({
+          action: "toggle_extension",
+          id: id,
+          enabled: !current
+        }));
+      }
+    }
+
+    window.__rustium_render_extensions__ = function(extensions) {
+      if (!extensions || extensions.length === 0) return;
+      const container = document.getElementById("extList");
+      
+      // Append or update user extensions
+      extensions.forEach(ext => {
+        let card = document.getElementById("ext_" + ext.id);
+        if (!card) {
+          card = document.createElement("div");
+          card.id = "ext_" + ext.id;
+          card.className = "ext-card";
+          container.prepend(card);
+        }
+        card.innerHTML = `
+          <div class="ext-left">
+            <div class="ext-avatar-box">
+              <svg viewBox="0 0 24 24"><path d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5a2.5 2.5 0 0 0-5 0V5H4c-1.1 0-1.99.9-1.99 2v3.8H3.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7 1.49 0 2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5a2.5 2.5 0 0 0 0-5z" fill="currentColor"/></svg>
+            </div>
+            <div class="ext-info">
+              <div class="ext-name-row">
+                <span class="ext-name">${ext.name}</span>
+                <span class="ext-ver">v${ext.version}</span>
+              </div>
+              <div class="ext-desc">${ext.description}</div>
+              <div style="font-size:11px; color:var(--md-primary); font-family:monospace; margin-top:2px;">ID: ${ext.id}</div>
+            </div>
+          </div>
+          <div class="md3-switch ${ext.enabled ? 'checked' : ''}" onclick="toggleExt('${ext.id}', ${ext.enabled})">
+            <div class="md3-switch-thumb"></div>
+          </div>
+        `;
+      });
+    };
+
+    window.addEventListener("DOMContentLoaded", () => {
+      if (window.ipc) {
+        window.ipc.postMessage(JSON.stringify({ action: "get_state" }));
+      }
+    });
+  </script>
+</body>
+</html>

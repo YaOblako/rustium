@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Настройки - Rustium</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      border: none !important;
+      outline: none !important;
+      user-select: none;
+    }
+
+    :root {
+      --md-surface-lowest: #0f1416;
+      --md-surface-low: #171d1e;
+      --md-surface: #1b2123;
+      --md-surface-high: #252b2d;
+      --md-surface-highest: #303638;
+
+      --md-primary: #a8c7fa;
+      --md-on-primary: #003258;
+      --md-primary-container: #00497d;
+      --md-on-primary-container: #d3e3fd;
+
+      --md-on-surface: #e1e3e5;
+      --md-on-surface-variant: #c1c7ce;
+      --radius-pill: 9999px;
+      --radius-card: 16px;
+      --radius-tab: 12px;
+
+      font-family: Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    }
+
+    body {
+      background: var(--md-surface-lowest);
+      color: var(--md-on-surface);
+      min-height: 100vh;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 760px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--md-primary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Section Cards */
+    .section-card {
+      background: var(--md-surface);
+      border-radius: var(--radius-card);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--md-on-surface);
+    }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: var(--md-surface-low);
+      border-radius: var(--radius-tab);
+      gap: 16px;
+    }
+
+    .setting-text {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .setting-title {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .setting-desc {
+      font-size: 12px;
+      color: var(--md-on-surface-variant);
+      line-height: 1.4;
+    }
+
+    /* Theme Selectors */
+    .theme-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+    }
+
+    .theme-chip {
+      background: var(--md-surface-high);
+      border-radius: var(--radius-pill);
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+    .theme-chip:hover {
+      background: var(--md-surface-highest);
+      transform: translateY(-1px);
+    }
+    .theme-chip.active {
+      background: var(--md-primary);
+      color: var(--md-on-primary);
+      font-weight: 600;
+    }
+
+    /* Seed Color Options */
+    .color-presets {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .color-swatch {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+    .color-swatch:hover {
+      transform: scale(1.15);
+    }
+    .color-swatch.active {
+      transform: scale(1.2);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Gradient Settings Grid */
+    .gradient-settings-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      width: 100%;
+    }
+    .grad-card {
+      background: var(--md-surface-low);
+      border-radius: var(--radius-tab);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease;
+      position: relative;
+    }
+    .grad-card:hover {
+      background: var(--md-surface-highest);
+      transform: translateY(-1px);
+    }
+    .grad-card.active {
+      background: var(--md-primary-container);
+      color: var(--md-on-primary-container);
+    }
+    .grad-circle {
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-pill);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+    .grad-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    /* Custom Switch */
+    .md3-switch {
+      width: 48px;
+      height: 26px;
+      background: var(--md-surface-highest);
+      border-radius: var(--radius-pill);
+      position: relative;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.2s ease;
+    }
+    .md3-switch.checked {
+      background: var(--md-primary);
+    }
+    .md3-switch-thumb {
+      width: 20px;
+      height: 20px;
+      background: var(--md-on-surface-variant);
+      border-radius: var(--radius-pill);
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), background 0.2s ease;
+    }
+    .md3-switch.checked .md3-switch-thumb {
+      transform: translateX(22px);
+      background: var(--md-on-primary);
+    }
+
+    /* Slider */
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 200px;
+    }
+    .md3-slider {
+      -webkit-appearance: none;
+      flex: 1;
+      height: 6px;
+      border-radius: var(--radius-pill);
+      background: var(--md-surface-highest);
+      outline: none;
+    }
+    .md3-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: var(--radius-pill);
+      background: var(--md-primary);
+      cursor: pointer;
+    }
+
+    /* Select Dropdown */
+    .md3-select {
+      background: var(--md-surface-highest);
+      color: var(--md-on-surface);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+    }
+
+    /* Save Notification Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      background: var(--md-primary);
+      color: var(--md-on-primary);
+      padding: 10px 24px;
+      border-radius: var(--radius-pill);
+      font-size: 13px;
+      font-weight: 600;
+      display: none;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      animation: fadeIn 0.2s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="page-title">
+      <svg style="width:28px;height:28px;color:var(--md-primary);" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" fill="currentColor"/></svg>
+      Настройки Rustium
+    </div>
+
+    <!-- 1. Appearance & Themes -->
+    <div class="section-card">
+      <div class="section-header">
+        <svg style="width:22px;height:22px;color:var(--md-primary);" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.39-1.39C8.69 19.64 10.28 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 15c-1.4 0-2.69-.4-3.8-1.07l2.1-2.1c.39-.39.39-1.02 0-1.41a.996.996 0 0 0-1.41 0l-2.1 2.1C6.12 14.41 5.72 13.25 5.72 12c0-3.46 2.82-6.28 6.28-6.28 3.46 0 6.28 2.82 6.28 6.28 0 3.46-2.82 6.28-6.28 6.28z" fill="currentColor"/></svg>
+        Тема оформления, цвета и градиенты
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-text">
+          <div class="setting-title">Цветовая схема</div>
+          <div class="setting-desc">Выберите встроенный стиль Material Design 3 или специализированную палитру</div>
+        </div>
+      </div>
+      <div class="theme-grid">
+        <div class="theme-chip active" id="th_md3_dark" onclick="selectTheme('md3_dark')">MD3 Тёмная</div>
+        <div class="theme-chip" id="th_md3_light" onclick="selectTheme('md3_light')">MD3 Светлая</div>
+        <div class="theme-chip" id="th_win11" onclick="selectTheme('win11')">Windows 11 Fluent</div>
+        <div class="theme-chip" id="th_amoled" onclick="selectTheme('amoled')">AMOLED Black</div>
+        <div class="theme-chip" id="th_catppuccin" onclick="selectTheme('catppuccin')">Catppuccin Mocha</div>
+        <div class="theme-chip" id="th_nord" onclick="selectTheme('nord')">Nord Polar</div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-text">
+          <div class="setting-title">Динамический акцентный цвет (Seed Color)</div>
+          <div class="setting-desc">Базовый оттенок для алгоритмической генерации тональной палитры Material You</div>
+        </div>
+        <div class="color-presets">
+          <div class="color-swatch active" style="background: #a8c7fa;" onclick="selectColor('#a8c7fa')"></div>
+          <div class="color-swatch" style="background: #6750A4;" onclick="selectColor('#6750A4')"></div>
+          <div class="color-swatch" style="background: #006C4C;" onclick="selectColor('#006C4C')"></div>
+          <div class="color-swatch" style="background: #88C0D0;" onclick="selectColor('#88C0D0')"></div>
+          <div class="color-swatch" style="background: #F38BA8;" onclick="selectColor('#F38BA8')"></div>
+          <div class="color-swatch" style="background: #E06C75;" onclick="selectColor('#E06C75')"></div>
+        </div>
+      </div>
+
+      <div class="setting-row" style="flex-direction: column; align-items: flex-start; gap: 12px; margin-top: 8px;">
+        <div class="setting-text">
+          <div class="setting-title">Красивые градиенты фона (Material Design 3)</div>
+          <div class="setting-desc">Атмосферный радиальный меш-градиент для стартового экрана и заголовка браузера</div>
+        </div>
+        <div class="gradient-settings-grid">
+          <div class="grad-card active" id="gc_aurora" onclick="selectGradient('aurora')">
+            <div class="grad-circle" style="background: radial-gradient(circle at 20% 20%, #17524d, #0d2028);"></div>
+            <div class="grad-title">Северное сияние</div>
+          </div>
+          <div class="grad-card" id="gc_sunset" onclick="selectGradient('sunset')">
+            <div class="grad-circle" style="background: radial-gradient(circle at 20% 20%, #7c2d58, #30163a);"></div>
+            <div class="grad-title">Закатный индиго</div>
+          </div>
+          <div class="grad-card" id="gc_cosmos" onclick="selectGradient('cosmos')">
+            <div class="grad-circle" style="background: radial-gradient(circle at 20% 20%, #293d8a, #1a1745);"></div>
+            <div class="grad-title">Глубокий космос</div>
+          </div>
+          <div class="grad-card" id="gc_cyber" onclick="selectGradient('cyber')">
+            <div class="grad-circle" style="background: radial-gradient(circle at 20% 20%, #631980, #133966);"></div>
+            <div class="grad-title">Неоновый киберпанк</div>
+          </div>
+          <div class="grad-card" id="gc_emerald" onclick="selectGradient('emerald')">
+            <div class="grad-circle" style="background: radial-gradient(circle at 20% 20%, #205c3d, #102d21);"></div>
+            <div class="grad-title">Изумрудный бор</div>
+          </div>
+          <div class="grad-card" id="gc_ocean" onclick="selectGradient('ocean')">
+            <div class="grad-circle" style="background: radial-gradient(circle at 20% 20%, #155577, #0d283c);"></div>
+            <div class="grad-title">Морская бездна</div>
+          </div>
+          <div class="grad-card" id="gc_amethyst" onclick="selectGradient('amethyst')">
+            <div class="grad-circle" style="background: radial-gradient(circle at 20% 20%, #56367c, #26214a);"></div>
+            <div class="grad-title">Аметистовый туман</div>
+          </div>
+          <div class="grad-card" id="gc_none" onclick="selectGradient('none')">
+            <div class="grad-circle" style="background: #1e252b;"></div>
+            <div class="grad-title">Строгий тёмный</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1.1 Live Wallpapers & Transparency -->
+    <div class="section-card">
+      <div class="section-header">
+        <svg style="width:22px;height:22px;color:var(--md-primary);" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" fill="currentColor"/></svg>
+        Живые обои (GIF), прозрачность и размытие фона
+      </div>
+
+      <div class="setting-row" style="flex-direction: column; align-items: flex-start; gap: 12px;">
+        <div class="setting-text">
+          <div class="setting-title">Анимированные GIF обои стартового экрана</div>
+          <div class="setting-desc">Выберите атмосферный анимированный фон или настройте пользовательский стиль</div>
+        </div>
+        <div class="gradient-settings-grid">
+          <div class="grad-card" id="gif_cyberpunk" onclick="selectGifPreset('cyberpunk')">
+            <div class="grad-circle" style="background: url('https://media.giphy.com/media/26tn33aiTi1jkl6H6/giphy.gif') center/cover;"></div>
+            <div class="grad-title">Киберпанк</div>
+          </div>
+          <div class="grad-card" id="gif_nebula" onclick="selectGifPreset('nebula')">
+            <div class="grad-circle" style="background: url('https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif') center/cover;"></div>
+            <div class="grad-title">Туманность</div>
+          </div>
+          <div class="grad-card" id="gif_retro_sunset" onclick="selectGifPreset('retro_sunset')">
+            <div class="grad-circle" style="background: url('https://media.giphy.com/media/3o7aD2saalBwwftBIY/giphy.gif') center/cover;"></div>
+            <div class="grad-title">Ретро закат</div>
+          </div>
+          <div class="grad-card" id="gif_rain_window" onclick="selectGifPreset('rain_window')">
+            <div class="grad-circle" style="background: url('https://media.giphy.com/media/t7Qb8655Z1V9K/giphy.gif') center/cover;"></div>
+            <div class="grad-title">Дождь за стеклом</div>
+          </div>
+          <div class="grad-card" id="gif_lofi_room" onclick="selectGifPreset('lofi_room')">
+            <div class="grad-circle" style="background: url('https://media.giphy.com/media/dI3D3BWfDub0Q/giphy.gif') center/cover;"></div>
+            <div class="grad-title">Lofi уют</div>
+          </div>
+          <div class="grad-card" id="gif_minimal_waves" onclick="selectGifPreset('minimal_waves')">
+            <div class="grad-circle" style="background: url('https://media.giphy.com/media/xT9IgzoKnwFNmISR8I/giphy.gif') center/cover;"></div>
+            <div class="grad-title">Неоновые волны</div>
+          </div>
+          <div class="grad-card active" id="gif_none" onclick="selectGifPreset('none')">
+            <div class="grad-circle" style="background: #1e252b; display:flex; align-items:center; justify-content:center; color:#a8c7fa; font-size:11px;">Нет GIF</div>
+            <div class="grad-title">Без GIF</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-text">
+          <div class="setting-title">Затемнение фона (Прозрачность оверлея)</div>
+          <div class="setting-desc">Регулирует читаемость текста и контраст карточек поверх живых обоев</div>
+        </div>
+        <div class="slider-row">
+          <input type="range" class="md3-slider" id="bgOpacitySlider" min="0" max="90" value="40" oninput="updateBgOpacity()">
+          <span style="font-size: 13px; font-weight: 600; min-width: 36px; text-align: right;" id="bgOpacityVal">40%</span>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-text">
+          <div class="setting-title">Размытие фона (Backdrop Blur)</div>
+          <div class="setting-desc">Эффект матового стекла (Mica / Acrylic) для элементов интерфейса</div>
+        </div>
+        <div class="slider-row">
+          <input type="range" class="md3-slider" id="bgBlurSlider" min="0" max="30" value="0" oninput="updateBgBlur()">
+          <span style="font-size: 13px; font-weight: 600; min-width: 36px; text-align: right;" id="bgBlurVal">0px</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Search Engine -->
+    <div class="section-card">
+      <div class="section-header">
+        <svg style="width:22px;height:22px;color:var(--md-primary);" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="currentColor"/></svg>
+        Поисковая система
+      </div>
+      <div class="setting-row">
+        <div class="setting-text">
+          <div class="setting-title">Поиск по умолчанию в омнибоксе</div>
+          <div class="setting-desc">Используется при вводе поисковых запросов в адресную строку</div>
+        </div>
+        <select class="md3-select" id="searchEngineSelect" onchange="updateSearchEngine()">
+          <option value="google">Google</option>
+          <option value="duckduckgo">DuckDuckGo</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 3. Adblock Engine -->
+    <div class="section-card">
+      <div class="section-header">
+        <svg style="width:22px;height:22px;color:var(--md-primary);" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z" fill="currentColor"/></svg>
+        Блокировщик рекламы и трекеров
+      </div>
+      <div class="setting-row">
+        <div class="setting-text">
+          <div class="setting-title">Движок Brave Adblock Engine</div>
+          <div class="setting-desc">Автоматическая фильтрация рекламных сетей, телеметрии и всплывающих окон по правилам EasyList</div>
+        </div>
+        <div class="md3-switch checked" id="adblockGlobalToggle" onclick="toggleAdblockGlobal()">
+          <div class="md3-switch-thumb"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Dark Reader Engine -->
+    <div class="section-card">
+      <div class="section-header">
+        <svg style="width:22px;height:22px;color:var(--md-primary);" viewBox="0 0 24 24"><path d="M12.3 2a10 10 0 0 0-.19 2 10 10 0 0 0 10 10c.68 0 1.35-.06 2-.19A10 10 0 1 1 12.3 2z" fill="currentColor"/></svg>
+        Автоматическая тёмная тема для веб-страниц
+      </div>
+      <div class="setting-row">
+        <div class="setting-text">
+          <div class="setting-title">Режим работы Dark Reader</div>
+          <div class="setting-desc">Умный анализ контраста CSS/JS и инверсия светлых фонов с защитой изображений и видео</div>
+        </div>
+        <select class="md3-select" id="darkModeSelect" onchange="updateDarkMode()">
+          <option value="system">Следовать теме системы</option>
+          <option value="always_on">Всегда включен</option>
+          <option value="always_off">Всегда выключен</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <div class="setting-text">
+          <div class="setting-title">Яркость по умолчанию</div>
+        </div>
+        <div class="slider-container">
+          <input type="range" class="md3-slider" id="dmBrightness" min="50" max="150" value="90" oninput="updateDmSliders()">
+          <span id="dmBrightnessVal" style="font-size:12px; font-weight:600; width:40px;">90%</span>
+        </div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-text">
+          <div class="setting-title">Контрастность по умолчанию</div>
+        </div>
+        <div class="slider-container">
+          <input type="range" class="md3-slider" id="dmContrast" min="50" max="150" value="100" oninput="updateDmSliders()">
+          <span id="dmContrastVal" style="font-size:12px; font-weight:600; width:40px;">100%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Experimental Features -->
+    <div class="section-card">
+      <div class="section-header">
+        <svg style="width:22px;height:22px;color:var(--md-primary);" viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z" fill="currentColor"/></svg>
+        Экспериментальные функции (Experiments)
+      </div>
+      <div class="setting-row">
+        <div class="setting-text">
+          <div class="setting-title">Многопоточный ускоритель загрузки файлов</div>
+          <div class="setting-desc">
+            Проверяет заголовок <code>Accept-Ranges: bytes</code>, разделяет файл на фрагменты и загружает их параллельно через <code>tokio</code> + <code>reqwest</code> со смещением <code>Seek</code>
+          </div>
+        </div>
+        <div class="md3-switch checked" id="multithreadToggle" onclick="toggleMultithread()">
+          <div class="md3-switch-thumb"></div>
+        </div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-text">
+          <div class="setting-title">Количество параллельных потоков скачивания</div>
+          <div class="setting-desc">Диапазон от 2 до 16 независимых соединений (по умолчанию: 4)</div>
+        </div>
+        <div class="slider-container">
+          <input type="range" class="md3-slider" id="threadsSlider" min="2" max="16" value="4" oninput="updateThreads()">
+          <span id="threadsVal" style="font-size:13px; font-weight:700; color:var(--md-primary); width:40px;">4</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Passwords & Logins -->
+    <div class="section-card">
+      <div class="section-header">
+        <svg style="width:22px;height:22px;color:var(--md-primary);" viewBox="0 0 24 24"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2 2z" fill="currentColor"/></svg>
+        Пароли и автозаполнение
+      </div>
+      <div class="setting-row">
+        <div class="setting-text">
+          <div class="setting-title">Менеджер паролей во вкладке</div>
+          <div class="setting-desc">Удобный интерфейс для поиска, просмотра, 1-клик копирования логинов и паролей и добавления сайтов.</div>
+        </div>
+        <button class="btn-primary" style="padding:8px 16px; border-radius:9999px; background:var(--md-primary); color:var(--md-on-primary); font-weight:600; cursor:pointer;" onclick="openPasswordsTab()">Открыть менеджер паролей</button>
+      </div>
+      <div class="setting-row">
+        <div class="setting-text">
+          <div class="setting-title">Импорт сохраненных паролей</div>
+          <div class="setting-desc">Импортируйте пароли из Google Chrome, Mozilla Firefox или Edge в формате CSV.</div>
+        </div>
+        <div>
+          <input type="file" id="pwdFileInput" accept=".csv" style="display:none;" onchange="handleCsvFile(event)">
+          <button class="btn-primary" style="padding:8px 16px; border-radius:9999px; background:var(--md-secondary-container); color:var(--md-on-secondary-container); font-weight:600; cursor:pointer;" onclick="document.getElementById('pwdFileInput').click()">Импорт из CSV...</button>
+        </div>
+      </div>
+      <div id="loginsContainer" style="display:flex; flex-direction:column; gap:8px;"></div>
+    </div>
+
+    <!-- 7. About Rustium -->
+    <div class="section-card">
+      <div class="section-header">
+        <svg style="width:22px;height:22px;color:var(--md-primary);" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" fill="currentColor"/></svg>
+        О браузере Rustium 1.1.1
+      </div>
+      <div class="setting-row">
+        <div class="setting-text">
+          <div class="setting-title" style="font-size: 16px; font-weight: 700; color: var(--md-primary);">Rustium 1.1.1 (Release x86_64-windows)</div>
+          <div class="setting-desc" style="margin-top: 4px;">
+            Высокопроизводительный современный веб-браузер на языке <strong>Rust</strong> с асинхронным рантаймом <strong>Tokio</strong>, движком отображения на базе <strong>Wry / WebView2</strong>, встроенным блокировщиком <strong>uBlock Origin / Brave Adblock</strong>, авто-тёмной темой Dark Reader и поддержкой расширений WebExtensions.
+          </div>
+        </div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-text">
+          <div class="setting-title">User-Agent</div>
+          <div class="setting-desc" style="font-family: monospace; font-size: 11px;">
+            Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Rustium/1.1.1
+          </div>
+        </div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-text">
+          <div class="setting-title">Дизайн-система</div>
+          <div class="setting-desc">Material Design 3 (Strict Zero Borders / Tonal Surface Hierarchy). Никаких декоративных рамок и искусственных разделителей.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Настройки сохранены</div>
+
+  <script>
+    let currentSettings = {
+      theme: "md3_dark",
+      accent_color: "#a8c7fa",
+      search_engine: "google",
+      adblock_enabled: true,
+      dark_mode_mode: "system",
+      dark_mode_brightness: 90,
+      dark_mode_contrast: 100,
+      multithread_downloader_enabled: true,
+      download_threads: 4,
+      gradient: "aurora"
+    };
+
+    function showToast() {
+      const t = document.getElementById("toast");
+      t.style.display = "block";
+      setTimeout(() => { t.style.display = "none"; }, 2000);
+    }
+
+    function saveSettings() {
+      if (window.ipc) {
+        window.ipc.postMessage(JSON.stringify({
+          action: "update_settings",
+          settings: currentSettings
+        }));
+      }
+      showToast();
+    }
+
+    function selectTheme(name) {
+      currentSettings.theme = name;
+      document.querySelectorAll(".theme-chip").forEach(el => el.classList.remove("active"));
+      document.getElementById("th_" + name).classList.add("active");
+      saveSettings();
+    }
+
+    function selectColor(colorHex) {
+      currentSettings.accent_color = colorHex;
+      document.querySelectorAll(".color-swatch").forEach(el => el.classList.remove("active"));
+      event.target.classList.add("active");
+      saveSettings();
+    }
+
+    function selectGradient(name) {
+      currentSettings.gradient = name;
+      document.querySelectorAll(".grad-card").forEach(el => el.classList.remove("active"));
+      const el = document.getElementById("gc_" + name);
+      if (el) el.classList.add("active");
+      saveSettings();
+    }
+
+    function selectGifPreset(name) {
+      currentSettings.gif_preset = name;
+      currentSettings.bg_type = (name === 'none') ? 'gradient' : 'gif';
+      document.querySelectorAll("[id^='gif_']").forEach(el => el.classList.remove("active"));
+      const el = document.getElementById("gif_" + name);
+      if (el) el.classList.add("active");
+      saveSettings();
+    }
+
+    function updateBgOpacity() {
+      const v = parseInt(document.getElementById("bgOpacitySlider").value, 10);
+      currentSettings.bg_opacity = v;
+      document.getElementById("bgOpacityVal").textContent = v + "%";
+      saveSettings();
+    }
+
+    function updateBgBlur() {
+      const v = parseInt(document.getElementById("bgBlurSlider").value, 10);
+      currentSettings.bg_blur = v;
+      document.getElementById("bgBlurVal").textContent = v + "px";
+      saveSettings();
+    }
+
+    function openPasswordsTab() {
+      if (window.ipc) {
+        window.ipc.postMessage(JSON.stringify({
+          action: "create_tab",
+          url: "rustium://passwords",
+          title: "Менеджер паролей"
+        }));
+      }
+    }
+
+    function updateSearchEngine() {
+      currentSettings.search_engine = document.getElementById("searchEngineSelect").value;
+      saveSettings();
+    }
+
+    function toggleAdblockGlobal() {
+      currentSettings.adblock_enabled = !currentSettings.adblock_enabled;
+      document.getElementById("adblockGlobalToggle").classList.toggle("checked", currentSettings.adblock_enabled);
+      saveSettings();
+    }
+
+    function updateDarkMode() {
+      currentSettings.dark_mode_mode = document.getElementById("darkModeSelect").value;
+      saveSettings();
+    }
+
+    function updateDmSliders() {
+      const b = parseInt(document.getElementById("dmBrightness").value, 10);
+      const c = parseInt(document.getElementById("dmContrast").value, 10);
+      currentSettings.dark_mode_brightness = b;
+      currentSettings.dark_mode_contrast = c;
+      document.getElementById("dmBrightnessVal").textContent = b + "%";
+      document.getElementById("dmContrastVal").textContent = c + "%";
+      saveSettings();
+    }
+
+    function toggleMultithread() {
+      currentSettings.multithread_downloader_enabled = !currentSettings.multithread_downloader_enabled;
+      document.getElementById("multithreadToggle").classList.toggle("checked", currentSettings.multithread_downloader_enabled);
+      saveSettings();
+    }
+
+    function updateThreads() {
+      const t = parseInt(document.getElementById("threadsSlider").value, 10);
+      currentSettings.download_threads = t;
+      document.getElementById("threadsVal").textContent = t;
+      saveSettings();
+    }
+
+    function handleCsvFile(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const content = evt.target.result;
+        if (window.ipc) {
+          window.ipc.postMessage(JSON.stringify({
+            action: "import_passwords",
+            csv_content: content
+          }));
+        }
+        showToast();
+      };
+      reader.readAsText(file);
+    }
+
+    window.__rustium_render_settings__ = function(settings, logins) {
+      if (settings) {
+        currentSettings = Object.assign(currentSettings, settings);
+        if (settings.theme) {
+          document.querySelectorAll(".theme-chip").forEach(el => el.classList.remove("active"));
+          const thEl = document.getElementById("th_" + settings.theme);
+          if (thEl) thEl.classList.add("active");
+        }
+        if (settings.search_engine) {
+          document.getElementById("searchEngineSelect").value = settings.search_engine;
+        }
+        if (settings.adblock_enabled != null) {
+          document.getElementById("adblockGlobalToggle").classList.toggle("checked", settings.adblock_enabled);
+        }
+        if (settings.multithread_downloader_enabled != null) {
+          document.getElementById("multithreadToggle").classList.toggle("checked", settings.multithread_downloader_enabled);
+        }
+        if (settings.gradient) {
+          document.querySelectorAll(".grad-card").forEach(el => el.classList.remove("active"));
+          const el = document.getElementById("gc_" + settings.gradient);
+          if (el) el.classList.add("active");
+        }
+        if (settings.gif_preset) {
+          document.querySelectorAll("[id^='gif_']").forEach(el => el.classList.remove("active"));
+          const el = document.getElementById("gif_" + settings.gif_preset);
+          if (el) el.classList.add("active");
+        }
+        if (settings.bg_opacity != null) {
+          document.getElementById("bgOpacitySlider").value = settings.bg_opacity;
+          document.getElementById("bgOpacityVal").textContent = settings.bg_opacity + "%";
+        }
+        if (settings.bg_blur != null) {
+          document.getElementById("bgBlurSlider").value = settings.bg_blur;
+          document.getElementById("bgBlurVal").textContent = settings.bg_blur + "px";
+        }
+      }
+
+      if (logins && logins.length > 0) {
+        const cont = document.getElementById("loginsContainer");
+        cont.innerHTML = "";
+        logins.forEach(l => {
+          const row = document.createElement("div");
+          row.className = "setting-row";
+          row.innerHTML = `
+            <div class="setting-text">
+              <div class="setting-title">${l.url}</div>
+              <div class="setting-desc">Логин: <strong>${l.username}</strong> | Пароль: ••••••••</div>
+            </div>
+            <div style="font-size:12px; color:#ff897d; cursor:pointer;" onclick="deleteLogin(${l.id})">Удалить</div>
+          `;
+          cont.appendChild(row);
+        });
+      }
+    };
+
+    function deleteLogin(id) {
+      if (window.ipc) {
+        window.ipc.postMessage(JSON.stringify({ action: "delete_login", id: id }));
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      if (window.ipc) {
+        window.ipc.postMessage(JSON.stringify({ action: "get_state" }));
+      }
+    });
+  </script>
+</body>
+</html>

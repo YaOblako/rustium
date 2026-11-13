@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Закладки - Rustium</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      border: none !important;
+      outline: none !important;
+      user-select: none;
+    }
+
+    :root {
+      --md-surface-lowest: #0f1416;
+      --md-surface-low: #171d1e;
+      --md-surface: #1b2123;
+      --md-surface-high: #252b2d;
+      --md-surface-highest: #303638;
+
+      --md-primary: #a8c7fa;
+      --md-on-primary: #003258;
+      --md-primary-container: #00497d;
+      --md-on-primary-container: #d3e3fd;
+
+      --md-on-surface: #e1e3e5;
+      --md-on-surface-variant: #c1c7ce;
+      --radius-pill: 9999px;
+      --radius-card: 16px;
+      --radius-tab: 12px;
+
+      font-family: Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    }
+
+    body {
+      background: var(--md-surface-lowest);
+      color: var(--md-on-surface);
+      min-height: 100vh;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 760px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--md-primary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .bookmarks-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .bookmark-item {
+      background: var(--md-surface);
+      border-radius: var(--radius-tab);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      transition: background 0.12s ease;
+    }
+    .bookmark-item:hover {
+      background: var(--md-surface-high);
+    }
+
+    .bm-info {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      overflow: hidden;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .bm-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--md-on-surface);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .bm-url {
+      font-size: 12px;
+      color: var(--md-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .del-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-pill);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      cursor: pointer;
+      color: var(--md-on-surface-variant);
+      transition: background 0.12s ease, color 0.12s ease;
+    }
+    .del-btn:hover {
+      background: var(--md-surface-highest);
+      color: #cf6679;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header-row">
+      <div class="page-title">
+        <span>⭐</span> Закладки
+      </div>
+    </div>
+
+    <div class="bookmarks-list" id="bookmarksList">
+      <!-- Items dynamically populated -->
+    </div>
+  </div>
+
+  <script>
+    function navTo(url) {
+      if (window.ipc) {
+        window.ipc.postMessage(JSON.stringify({ action: "navigate", url: url }));
+      } else {
+        window.location.href = url;
+      }
+    }
+
+    function removeBm(url) {
+      if (window.ipc) {
+        window.ipc.postMessage(JSON.stringify({ action: "remove_bookmark", url: url }));
+      }
+    }
+
+    window.__rustium_render_bookmarks__ = function(items) {
+      const container = document.getElementById("bookmarksList");
+      if (!items || items.length === 0) {
+        container.innerHTML = `
+          <div style="background:var(--md-surface); border-radius:16px; padding:32px; text-align:center; color:var(--md-on-surface-variant);">
+            Закладок пока нет. Нажмите на значок звёздочки в омнибоксе, чтобы сохранить страницу в закладки.
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = "";
+      items.forEach(bm => {
+        const item = document.createElement("div");
+        item.className = "bookmark-item";
+        item.innerHTML = `
+          <div class="bm-info" onclick="navTo('${bm.url}')">
+            <div class="bm-title">${bm.title}</div>
+            <div class="bm-url">${bm.url}</div>
+          </div>
+          <div class="del-btn" title="Удалить закладку" onclick="removeBm('${bm.url}')">🗑️</div>
+        `;
+        container.appendChild(item);
+      });
+    };
+  </script>
+</body>
+</html>

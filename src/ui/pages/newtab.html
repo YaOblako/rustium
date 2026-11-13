@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Новая вкладка - Rustium</title>
+  <style>
+    /* -------------------------------------------------------------
+       Material Design 3 - Strictly Zero Borders / Strokes
+       ------------------------------------------------------------- */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      border: none !important;
+      outline: none !important;
+      user-select: none;
+    }
+
+    :root {
+      --md-surface-lowest: #0e1215;
+      --md-surface-low: #151a1d;
+      --md-surface: #1b2125;
+      --md-surface-high: #242c30;
+      --md-surface-highest: #2e363c;
+
+      --md-primary: #a8c7fa;
+      --md-on-primary: #003258;
+      --md-primary-container: #00497d;
+      --md-on-primary-container: #d3e3fd;
+
+      --md-secondary-container: #3c4858;
+      --md-on-secondary-container: #d7e3f8;
+
+      --md-on-surface: #e1e3e5;
+      --md-on-surface-variant: #c1c7ce;
+      --radius-pill: 9999px;
+      --radius-card: 18px;
+      --radius-dialog: 24px;
+
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    }
+
+    body {
+      background: var(--md-surface-lowest);
+      color: var(--md-on-surface);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 44px 24px;
+      gap: 30px;
+      position: relative;
+      transition: background 0.4s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    /* Ambient Material Design 3 Mesh Gradients */
+    body.grad-aurora {
+      background: radial-gradient(circle at 12% 18%, #0d2e2b 0%, transparent 45%),
+                  radial-gradient(circle at 88% 12%, #0e2938 0%, transparent 45%),
+                  radial-gradient(circle at 50% 82%, #143527 0%, transparent 50%),
+                  #0a1114;
+    }
+    body.grad-sunset {
+      background: radial-gradient(circle at 18% 15%, #381528 0%, transparent 48%),
+                  radial-gradient(circle at 82% 22%, #421c25 0%, transparent 42%),
+                  radial-gradient(circle at 50% 85%, #251233 0%, transparent 50%),
+                  #120c16;
+    }
+    body.grad-cosmos {
+      background: radial-gradient(circle at 15% 15%, #18224b 0%, transparent 50%),
+                  radial-gradient(circle at 85% 25%, #2a164d 0%, transparent 45%),
+                  radial-gradient(circle at 50% 88%, #141c3b 0%, transparent 50%),
+                  #080b13;
+    }
+    body.grad-cyber {
+      background: radial-gradient(circle at 12% 12%, #32103f 0%, transparent 45%),
+                  radial-gradient(circle at 88% 18%, #0c2d4a 0%, transparent 42%),
+                  radial-gradient(circle at 48% 82%, #260e38 0%, transparent 50%),
+                  #0d0a14;
+    }
+    body.grad-emerald {
+      background: radial-gradient(circle at 20% 20%, #112d1f 0%, transparent 46%),
+                  radial-gradient(circle at 80% 15%, #183827 0%, transparent 42%),
+                  radial-gradient(circle at 50% 80%, #0d2419 0%, transparent 50%),
+                  #09130e;
+    }
+    body.grad-ocean {
+      background: radial-gradient(circle at 15% 20%, #0a2538 0%, transparent 45%),
+                  radial-gradient(circle at 85% 15%, #083446 0%, transparent 42%),
+                  radial-gradient(circle at 50% 85%, #091e2e 0%, transparent 50%),
+                  #071018;
+    }
+    body.grad-amethyst {
+      background: radial-gradient(circle at 20% 15%, #2a1b3d 0%, transparent 46%),
+                  radial-gradient(circle at 82% 25%, #202042 0%, transparent 42%),
+                  radial-gradient(circle at 50% 80%, #1e152f 0%, transparent 50%),
+                  #0e0c15;
+    }
+    body.grad-none {
+      background: #0e1215;
+    }
+
+    /* Windows 11 Fluent Theme */
+    body.theme-win11 {
+      --md-surface-lowest: #1c1c1c;
+      --md-surface-low: #202020;
+      --md-surface: #2d2d2d;
+      --md-surface-high: #383838;
+      --md-surface-highest: #444444;
+      --md-on-surface: #ffffff;
+      --md-on-surface-variant: #cccccc;
+      --md-primary: #60cdff;
+      --md-on-primary: #003355;
+      --md-primary-container: #004b75;
+      --md-on-primary-container: #cceaff;
+      font-family: "Segoe UI Variable Display", "Segoe UI", -apple-system, sans-serif;
+    }
+
+    /* Animated Wallpaper & Translucent Layer */
+    .bg-media-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: -1;
+      overflow: hidden;
+      display: none;
+    }
+    .bg-media-container.active {
+      display: block;
+    }
+    .bg-media-layer {
+      position: absolute;
+      top: -20px;
+      left: -20px;
+      right: -20px;
+      bottom: -20px;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      transition: filter 0.25s ease;
+      filter: blur(var(--bg-blur, 0px));
+    }
+    .bg-overlay-tint {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(10, 14, 18, var(--bg-tint-opacity, 0.4));
+      transition: background 0.25s ease;
+    }
+
+    /* Glassmorphism Cards when GIF background is active */
+    body.has-gif-bg .search-card {
+      background: rgba(28, 33, 40, var(--card-opacity, 0.72)) !important;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+    }
+    body.has-gif-bg .shortcut-card {
+      background: rgba(28, 33, 40, var(--card-opacity, 0.72)) !important;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+    }
+    body.has-gif-bg .info-card {
+      background: rgba(24, 28, 34, var(--card-opacity, 0.75)) !important;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    /* Modal Tabs */
+    .modal-tab-bar {
+      display: flex;
+      gap: 6px;
+      background: var(--md-surface);
+      padding: 4px;
+      border-radius: var(--radius-pill);
+    }
+    .modal-tab {
+      flex: 1;
+      padding: 8px 12px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      color: var(--md-on-surface-variant);
+      transition: background 0.15s, color 0.15s;
+    }
+    .modal-tab.active {
+      background: var(--md-primary-container);
+      color: var(--md-on-primary-container);
+    }
+
+    /* GIF Presets Grid */
+    .gif-presets-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .gif-item-card {
+      background: var(--md-surface);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      transition: background 0.15s, transform 0.1s;
+      position: relative;
+    }
+    .gif-item-card:hover {
+      background: var(--md-surface-highest);
+      transform: translateY(-2px);
+    }
+    .gif-item-card.active {
+      outline: 2px solid var(--md-primary) !important;
+    }
+    .gif-thumb {
+      height: 70px;
+      background-size: cover;
+      background-position: center;
+    }
+    .gif-meta {
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .gif-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--md-on-surface);
+    }
+    .gif-desc {
+      font-size: 10px;
+      color: var(--md-on-surface-variant);
+    }
+
+    /* Sliders & Controls in GIF Tab */
+    .control-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: var(--md-surface);
+      padding: 12px 14px;
+      border-radius: 14px;
+    }
+    .control-row-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--md-on-surface);
+      font-weight: 500;
+    }
+    .control-row-val {
+      font-weight: 700;
+      color: var(--md-primary);
+      font-size: 12px;
+    }
+    .custom-input-group {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .custom-url-input {
+      flex: 1;
+      background: var(--md-surface-lowest);
+      color: var(--md-on-surface);
+      padding: 8px 14px;
+      border-radius: var(--radius-pill);
+      font-size: 13px;
+      user-select: text;
+    }
+    .btn-action-small {
+      padding: 8px 14px;
+      border-radius: var(--radius-pill);
+      background: var(--md-primary);
+      color: var(--md-on-primary);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: filter 0.15s;
+    }
+    .btn-action-small:hover {
+      filter: brightness(1.1);
+    }
+    .btn-action-secondary {
+      background: var(--md-surface-highest);
+      color: var(--md-on-surface);
+    }
+
+    /* Top Corner Palette Action */
+    .top-action-wrap {
+      position: absolute;
+      top: 18px;
+      right: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 100;
+    }
+
+    .palette-btn {
+      height: 36px;
+      padding: 0 14px;
+      border-radius: var(--radius-pill);
+      background: var(--md-surface);
+      color: var(--md-on-surface);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+      transition: background 0.15s ease, transform 0.1s ease, color 0.15s ease;
+    }
+    .palette-btn:hover {
+      background: var(--md-surface-high);
+      transform: translateY(-1px);
+      color: var(--md-primary);
+    }
+    .palette-btn:active {
+      transform: scale(0.96);
+    }
+    .palette-btn svg {
+      width: 17px;
+      height: 17px;
+      color: var(--md-primary);
+    }
+
+    /* Gradient Modal / Dialog */
+    .gradient-modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      animation: fadeIn 0.2s ease;
+    }
+    .gradient-modal-backdrop.show {
+      display: flex;
+    }
+
+    .gradient-dialog {
+      background: var(--md-surface-high);
+      border-radius: var(--radius-dialog);
+      width: 100%;
+      max-width: 620px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
+      animation: scaleIn 0.22s cubic-bezier(0.05, 0.7, 0.1, 1);
+    }
+
+    .gradient-dialog-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .gradient-dialog-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--md-on-surface);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .gradient-dialog-title svg {
+      width: 22px;
+      height: 22px;
+      color: var(--md-primary);
+    }
+    .close-icon-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-pill);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--md-on-surface-variant);
+      transition: background 0.15s, color 0.15s;
+    }
+    .close-icon-btn:hover {
+      background: var(--md-surface-highest);
+      color: var(--md-on-surface);
+    }
+
+    .gradients-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      max-height: 420px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .gradient-item-card {
+      background: var(--md-surface);
+      border-radius: 14px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease;
+      position: relative;
+    }
+    .gradient-item-card:hover {
+      background: var(--md-surface-highest);
+      transform: translateY(-1px);
+    }
+    .gradient-item-card.active {
+      background: var(--md-primary-container);
+      color: var(--md-on-primary-container);
+    }
+
+    .gradient-swatch-circle {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-pill);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+      flex-shrink: 0;
+    }
+
+    .gradient-item-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      overflow: hidden;
+    }
+    .gradient-item-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--md-on-surface);
+    }
+    .gradient-item-card.active .gradient-item-name {
+      color: var(--md-on-primary-container);
+    }
+    .gradient-item-desc {
+      font-size: 11px;
+      color: var(--md-on-surface-variant);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .gradient-item-card.active .gradient-item-desc {
+      color: var(--md-on-primary-container);
+      opacity: 0.85;
+    }
+
+    .gradient-check {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--md-primary);
+      display: none;
+    }
+    .gradient-item-card.active .gradient-check {
+      display: block;
+      color: var(--md-on-primary-container);
+    }
+
+    .brand-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-logo-svg {
+      width: 64px;
+      height: 64px;
+      display: block;
+      filter: drop-shadow(0 6px 20px rgba(244, 81, 30, 0.45));
+    }
+
+    .brand-title {
+      font-size: 40px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--md-on-surface);
+    }
+
+    .brand-title span {
+      color: var(--md-primary);
+    }
+
+    .brand-subtitle {
+      font-size: 14px;
+      color: var(--md-on-surface-variant);
+      font-weight: 400;
+      text-align: center;
+      max-width: 480px;
+    }
+
+    /* Centered Search Bar with Google / DuckDuckGo selector */
+    .search-card {
+      width: 100%;
+      max-width: 660px;
+      background: var(--md-surface);
+      border-radius: var(--radius-pill);
+      padding: 6px 12px 6px 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+      transition: background 0.2s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.2s ease, transform 0.15s ease;
+    }
+    .search-card:focus-within {
+      background: var(--md-surface-high);
+      box-shadow: 0 6px 28px rgba(0, 0, 0, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .search-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--md-primary);
+      flex-shrink: 0;
+    }
+    .search-icon svg {
+      width: 20px;
+      height: 20px;
+      display: block;
+    }
+
+    .search-input {
+      flex: 1;
+      background: transparent;
+      color: var(--md-on-surface);
+      font-size: 15px;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+    .search-input::placeholder {
+      color: var(--md-on-surface-variant);
+      opacity: 0.7;
+    }
+
+    /* Engine Switcher Pill */
+    .engine-switcher {
+      display: flex;
+      align-items: center;
+      background: var(--md-surface-highest);
+      border-radius: var(--radius-pill);
+      padding: 2px;
+      gap: 2px;
+    }
+
+    .engine-option {
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--md-on-surface-variant);
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .engine-option.active {
+      background: var(--md-primary-container);
+      color: var(--md-on-primary-container);
+    }
+
+    .search-action-btn {
+      padding: 8px 16px;
+      border-radius: var(--radius-pill);
+      background: var(--md-primary);
+      color: var(--md-on-primary);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: transform 0.1s ease, filter 0.15s ease;
+    }
+    .search-action-btn:hover {
+      filter: brightness(1.1);
+      transform: scale(1.02);
+    }
+    .search-action-btn:active {
+      transform: scale(0.96);
+    }
+
+    /* Shortcuts Grid */
+    .shortcuts-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      width: 100%;
+      max-width: 660px;
+    }
+
+    .shortcut-card {
+      background: var(--md-surface);
+      border-radius: var(--radius-card);
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: background 0.15s cubic-bezier(0.2, 0, 0, 1), transform 0.1s ease, box-shadow 0.15s ease;
+    }
+    .shortcut-card:hover {
+      background: var(--md-surface-high);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    }
+    .shortcut-card:active {
+      transform: scale(0.96);
+    }
+
+    .shortcut-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-pill);
+      background: var(--md-surface-highest);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .shortcut-icon svg {
+      width: 22px;
+      height: 22px;
+      display: block;
+    }
+
+    .shortcut-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--md-on-surface);
+      text-align: center;
+    }
+
+    /* Info Cards Row */
+    .info-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      width: 100%;
+      max-width: 660px;
+    }
+
+    .info-card {
+      background: var(--md-surface-low);
+      border-radius: var(--radius-card);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .info-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--md-primary);
+    }
+    .info-header svg {
+      width: 20px;
+      height: 20px;
+      display: block;
+    }
+
+    .info-body {
+      font-size: 13px;
+      color: var(--md-on-surface-variant);
+      line-height: 1.5;
+    }
+
+    .info-stat {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--md-on-surface);
+      margin-top: 4px;
+    }
+
+    /* -------------------------------------------------------------
+       Initial Setup Modal Dialog (Point 4)
+       ------------------------------------------------------------- */
+    .setup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      animation: fadeIn 0.2s ease;
+    }
+    .setup-overlay.show {
+      display: flex;
+    }
+
+    .setup-card {
+      background: var(--md-surface-high);
+      border-radius: var(--radius-dialog);
+      width: 100%;
+      max-width: 480px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      animation: scaleIn 0.22s cubic-bezier(0.05, 0.7, 0.1, 1);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.92); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .setup-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .setup-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--md-on-surface);
+    }
+    .setup-desc {
+      font-size: 13px;
+      color: var(--md-on-surface-variant);
+      margin-top: 2px;
+    }
+
+    .setup-section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--md-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .choice-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .choice-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: var(--md-surface);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    .choice-item:hover {
+      background: var(--md-surface-highest);
+    }
+    .choice-item.selected {
+      background: var(--md-primary-container);
+      color: var(--md-on-primary-container);
+    }
+    .choice-label {
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .choice-sub {
+      font-size: 11px;
+      opacity: 0.75;
+      margin-top: 2px;
+    }
+
+    .setup-save-btn {
+      padding: 12px;
+      border-radius: var(--radius-pill);
+      background: var(--md-primary);
+      color: var(--md-on-primary);
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+      cursor: pointer;
+      transition: filter 0.15s ease, transform 0.1s ease;
+    }
+    .setup-save-btn:hover {
+      filter: brightness(1.1);
+      transform: scale(1.02);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Animated Wallpaper & Translucent Layer (GIF / Video / Custom Wallpaper) -->
+  <div class="bg-media-container" id="bgMediaContainer">
+    <div class="bg-media-layer" id="bgMediaLayer"></div>
+    <div class="bg-overlay-tint" id="bgOverlayTint"></div>
+  </div>
+
+  <!-- Top Corner Palette Action -->
+  <div class="top-action-wrap">
+    <div class="palette-btn" onclick="openGradientModal()">
+      <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.39-1.39C8.69 19.64 10.28 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 15c-1.4 0-2.69-.4-3.8-1.07l2.1-2.1c.39-.39.39-1.02 0-1.41a.996.996 0 0 0-1.41 0l-2.1 2.1C6.12 14.41 5.72 13.25 5.72 12c0-3.46 2.82-6.28 6.28-6.28 3.46 0 6.28 2.82 6.28 6.28 0 3.46-2.82 6.28-6.28 6.28z" fill="currentColor"/></svg>
+      <span>Фон и GIF-обои</span>
+    </div>
+  </div>
+
+  <!-- Brand Hero -->
+  <div class="brand-container">
+    <div class="brand-logo-wrap">
+      <!-- Rustium "R" SVG Logo -->
+      <svg class="brand-logo-svg" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="rGradHero" x1="4" y1="4" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#ff7043"/>
+            <stop offset="50%" stop-color="#f4511e"/>
+            <stop offset="100%" stop-color="#7c4dff"/>
+          </linearGradient>
+          <linearGradient id="flameGradHero" x1="0" y1="24" x2="48" y2="24" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#ffb74d"/>
+            <stop offset="100%" stop-color="#ff3d00"/>
+          </linearGradient>
+        </defs>
+        <rect x="2" y="2" width="44" height="44" rx="12" fill="url(#rGradHero)"/>
+        <path d="M6 34C10 40 22 45 34 40C43 36 46 25 42 16C40 12 37 9 34 8C33 12 30 16 26 18C32 20 35 25 33 30C30 35 22 37 15 35C11 34 8 31 6 28Z" fill="url(#flameGradHero)" opacity="0.6"/>
+        <path d="M15 12H26.5C31 12 34 14.8 34 19C34 22.2 31.8 24.6 28.5 25.4L35 36H28.8L23 26.5H20.5V36H15V12ZM20.5 21.8H26C28.2 21.8 29.5 20.7 29.5 19C29.5 17.3 28.2 16.2 26 16.2H20.5V21.8Z" fill="#ffffff"/>
+      </svg>
+      <div class="brand-title">Rust<span>ium</span></div>
+    </div>
+    <div class="brand-subtitle">
+      Быстрый, приватный и безопасный веб-браузер на Rust
+    </div>
+  </div>
+
+  <!-- Search Card -->
+  <div class="search-card">
+    <div class="search-icon">
+      <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="currentColor"/></svg>
+    </div>
+    <input type="text" class="search-input" id="newtabSearch" placeholder="Поиск в интернете или ввод адреса..." autofocus autocomplete="off" spellcheck="false">
+
+    <!-- Engine Switcher (Google / DuckDuckGo) -->
+    <div class="engine-switcher">
+      <div class="engine-option active" id="engineOptGoogle" onclick="selectEngine('google')">Google</div>
+      <div class="engine-option" id="engineOptDdg" onclick="selectEngine('duckduckgo')">DuckDuckGo</div>
+    </div>
+
+    <div class="search-action-btn" id="searchSubmitBtn">Найти</div>
+  </div>
+
+  <!-- Shortcuts Grid (SVG Vector Icons, Zero Emojis) -->
+  <div class="shortcuts-grid">
+    <div class="shortcut-card" onclick="nav('https://www.google.com')">
+      <div class="shortcut-icon">
+        <svg viewBox="0 0 24 24"><path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" fill="#4285F4"/></svg>
+      </div>
+      <div class="shortcut-title">Google</div>
+    </div>
+
+    <div class="shortcut-card" onclick="nav('https://duckduckgo.com')">
+      <div class="shortcut-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#DE5833"/><path d="M12 7c-2 0-3.5 1.5-3.5 3.5 0 1.5 1 2.5 2 3l-.5 2.5 2-1 2 1-.5-2.5c1-.5 2-1.5 2-3 0-2-1.5-3.5-3.5-3.5z" fill="#ffffff"/></svg>
+      </div>
+      <div class="shortcut-title">DuckDuckGo</div>
+    </div>
+
+    <div class="shortcut-card" onclick="nav('https://www.youtube.com')">
+      <div class="shortcut-icon">
+        <svg viewBox="0 0 24 24"><path d="M21.58 7.19a2.5 2.5 0 0 0-1.76-1.77C18.26 5 12 5 12 5s-6.26 0-7.82.42c-.87.23-1.54.92-1.76 1.77C2 8.75 2 12 2 12s0 3.25.42 4.81c.23.86.9 1.54 1.76 1.77 1.56.42 7.82.42 7.82.42s6.26 0 7.82-.42a2.5 2.5 0 0 0 1.76-1.77C22 15.25 22 12 22 12s0-3.25-.42-4.81zM9.75 15.02V8.98L15 12l-5.25 3.02z" fill="#ff0000"/></svg>
+      </div>
+      <div class="shortcut-title">YouTube</div>
+    </div>
+
+    <div class="shortcut-card" onclick="nav('https://discord.com/app')">
+      <div class="shortcut-icon">
+        <svg viewBox="0 0 24 24"><path d="M19.27 5.33C17.94 4.71 16.5 4.26 15 4a.09.09 0 0 0-.07.03c-.18.33-.39.76-.53 1.09a16.09 16.09 0 0 0-4.8 0c-.14-.34-.35-.76-.54-1.09-.01-.02-.04-.03-.07-.03-1.5.26-2.93.71-4.27 1.33-.01 0-.02.01-.03.02-2.72 4.07-3.47 8.03-3.1 11.95 0 .02.01.04.03.05 1.8 1.32 3.53 2.12 5.24 2.65.03.01.06 0 .07-.02.4-.55.76-1.13 1.07-1.74.02-.04 0-.08-.04-.09-.57-.22-1.11-.48-1.64-.78-.04-.02-.04-.08-.01-.11.11-.08.22-.17.33-.25.02-.02.05-.02.07-.01 3.44 1.57 7.15 1.57 10.55 0 .02-.01.05-.01.07.01.11.09.22.17.33.26.04.03.04.08-.01.11-.52.31-1.07.56-1.64.78-.04.01-.05.06-.04.09.32.61.68 1.19 1.07 1.74.01.02.05.03.07.02 1.72-.53 3.45-1.33 5.25-2.65.02-.01.03-.03.03-.05.44-4.53-.73-8.46-3.1-11.95-.01-.01-.02-.02-.03-.02zM8.52 14.91c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12 0 1.17-.84 2.12-1.89 2.12zm6.97 0c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12 0 1.17-.83 2.12-1.89 2.12z" fill="#5865F2"/></svg>
+      </div>
+      <div class="shortcut-title">Discord</div>
+    </div>
+
+    <div class="shortcut-card" onclick="nav('https://github.com')">
+      <div class="shortcut-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.1-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z" fill="#ffffff"/></svg>
+      </div>
+      <div class="shortcut-title">GitHub</div>
+    </div>
+
+    <div class="shortcut-card" onclick="nav('https://habr.com/ru/all/')">
+      <div class="shortcut-icon">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4" fill="#65A3BE"/><path d="M7 7h3v4h4V7h3v10h-3v-4h-4v4H7V7z" fill="#ffffff"/></svg>
+      </div>
+      <div class="shortcut-title">Хабр</div>
+    </div>
+
+    <div class="shortcut-card" onclick="nav('https://www.rust-lang.org')">
+      <div class="shortcut-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z" fill="#ff7043"/></svg>
+      </div>
+      <div class="shortcut-title">Rust Lang</div>
+    </div>
+
+    <div class="shortcut-card" onclick="nav('https://ru.wikipedia.org')">
+      <div class="shortcut-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#ffffff"/><path d="M5 8l3 8h1.5l2-5 2 5H15l3-8h-2l-1.8 5.5L12.5 8h-1l-1.7 5.5L8 8H5z" fill="#000000"/></svg>
+      </div>
+      <div class="shortcut-title">Википедия</div>
+    </div>
+  </div>
+
+  <!-- Info Cards -->
+  <div class="info-row">
+    <div class="info-card">
+      <div class="info-header">
+        <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z" fill="currentColor"/></svg>
+        <span>Блокировщик рекламы</span>
+      </div>
+      <div class="info-body">Встроенный движок Brave Adblock с фильтрами EasyList защищает вас от трекеров и навязчивых баннеров.</div>
+      <div class="info-stat">Активен</div>
+    </div>
+
+    <div class="info-card">
+      <div class="info-header">
+        <svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z" fill="currentColor"/></svg>
+        <span>Многопоточный загрузчик</span>
+      </div>
+      <div class="info-body">Экспериментальное ускорение скачивания через параллельные соединения Range Seek (до 16 потоков).</div>
+      <div class="info-stat">2 – 16 потоков</div>
+    </div>
+  </div>
+
+  <!-- Initial Setup Dialog (Point 4) -->
+  <div class="setup-overlay" id="setupOverlay">
+    <div class="setup-card">
+      <div class="setup-header">
+        <svg style="width:40px;height:40px;" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="2" width="44" height="44" rx="12" fill="url(#rGradHero)"/>
+          <path d="M15 12H26.5C31 12 34 14.8 34 19C34 22.2 31.8 24.6 28.5 25.4L35 36H28.8L23 26.5H20.5V36H15V12ZM20.5 21.8H26C28.2 21.8 29.5 20.7 29.5 19C29.5 17.3 28.2 16.2 26 16.2H20.5V21.8Z" fill="#ffffff"/>
+        </svg>
+        <div>
+          <div class="setup-title">Добро пожаловать в Rustium</div>
+          <div class="setup-desc">Выберите удобные параметры для начала работы</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="setup-section-title">Поисковая система</div>
+        <div class="choice-group" style="margin-top: 8px;">
+          <div class="choice-item selected" id="setupChoiceGoogle" onclick="setSetupEngine('google')">
+            <div>
+              <div class="choice-label">Google</div>
+              <div class="choice-sub">Быстрый, глобальный и точный поиск</div>
+            </div>
+            <div style="font-weight:700;">✓</div>
+          </div>
+          <div class="choice-item" id="setupChoiceDdg" onclick="setSetupEngine('duckduckgo')">
+            <div>
+              <div class="choice-label">DuckDuckGo</div>
+              <div class="choice-sub">Полная конфиденциальность без отслеживания</div>
+            </div>
+            <div style="font-weight:700;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="setup-section-title">Тема оформления</div>
+        <div class="choice-group" style="margin-top: 8px;">
+          <div class="choice-item selected" id="setupThemeDark" onclick="setSetupTheme('md3_dark')">
+            <div class="choice-label">Material Design 3 (Тёмная)</div>
+          </div>
+          <div class="choice-item" id="setupThemeLight" onclick="setSetupTheme('md3_light')">
+            <div class="choice-label">Material Design 3 (Светлая)</div>
+          </div>
+          <div class="choice-item" id="setupThemeWin11" onclick="setSetupTheme('win11')">
+            <div class="choice-label">Windows 11 (Fluent / Mica)</div>
+          </div>
+          <div class="choice-item" id="setupThemeAmoled" onclick="setSetupTheme('amoled')">
+            <div class="choice-label">AMOLED Black (Глубокий чёрный)</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="setup-section-title">Фоновый градиент</div>
+        <div class="choice-group" style="margin-top: 8px;">
+          <div class="choice-item selected" id="setupGradAurora" onclick="setSetupGrad('aurora')">
+            <div class="choice-label">Северное сияние (Изумрудно-бирюзовый)</div>
+          </div>
+          <div class="choice-item" id="setupGradSunset" onclick="setSetupGrad('sunset')">
+            <div class="choice-label">Закатный индиго (Тёплый рубин и пурпур)</div>
+          </div>
+          <div class="choice-item" id="setupGradCosmos" onclick="setSetupGrad('cosmos')">
+            <div class="choice-label">Глубокий космос (Звёздная туманность)</div>
+          </div>
+          <div class="choice-item" id="setupGradCyber" onclick="setSetupGrad('cyber')">
+            <div class="choice-label">Неоновый киберпанк (Электро-фиолетовый)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-save-btn" onclick="saveInitialSetup()">Сохранить и начать работу</div>
+    </div>
+  </div>
+
+  <!-- Background, Gradient & GIF Wallpaper Modal -->
+  <div class="gradient-modal-backdrop" id="gradientModal" onclick="if(event.target === this) closeGradientModal()">
+    <div class="gradient-dialog">
+      <div class="gradient-dialog-header">
+        <div class="gradient-dialog-title">
+          <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.39-1.39C8.69 19.64 10.28 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 15c-1.4 0-2.69-.4-3.8-1.07l2.1-2.1c.39-.39.39-1.02 0-1.41a.996.996 0 0 0-1.41 0l-2.1 2.1C6.12 14.41 5.72 13.25 5.72 12c0-3.46 2.82-6.28 6.28-6.28 3.46 0 6.28 2.82 6.28 6.28 0 3.46-2.82 6.28-6.28 6.28z" fill="currentColor"/></svg>
+          <span>Оформление и фон</span>
+        </div>
+        <div class="close-icon-btn" onclick="closeGradientModal()">
+          <svg style="width:20px;height:20px;" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/></svg>
+        </div>
+      </div>
+
+      <!-- Modal Tabs: Gradients vs Live Wallpapers / GIFs -->
+      <div class="modal-tab-bar">
+        <div class="modal-tab active" id="modalTabGrads" onclick="switchModalTab('grads')">Градиенты MD3</div>
+        <div class="modal-tab" id="modalTabGifs" onclick="switchModalTab('gifs')">Живые обои (GIF) и прозрачность</div>
+      </div>
+
+      <!-- View 1: Gradients -->
+      <div class="gradients-grid" id="modalViewGrads">
+        <div class="gradient-item-card active" data-gradient="aurora" onclick="setGradient('aurora')">
+          <div class="gradient-swatch-circle" style="background: radial-gradient(circle at 20% 20%, #17524d, #0d2028);"></div>
+          <div class="gradient-item-info">
+            <div class="gradient-item-name">Северное сияние</div>
+            <div class="gradient-item-desc">Изумрудные и бирюзовые переливы</div>
+          </div>
+          <div class="gradient-check">✓</div>
+        </div>
+
+        <div class="gradient-item-card" data-gradient="sunset" onclick="setGradient('sunset')">
+          <div class="gradient-swatch-circle" style="background: radial-gradient(circle at 20% 20%, #7c2d58, #30163a);"></div>
+          <div class="gradient-item-info">
+            <div class="gradient-item-name">Закатный индиго</div>
+            <div class="gradient-item-desc">Тёплый янтарь, рубин и пурпур</div>
+          </div>
+          <div class="gradient-check">✓</div>
+        </div>
+
+        <div class="gradient-item-card" data-gradient="cosmos" onclick="setGradient('cosmos')">
+          <div class="gradient-swatch-circle" style="background: radial-gradient(circle at 20% 20%, #293d8a, #1a1745);"></div>
+          <div class="gradient-item-info">
+            <div class="gradient-item-name">Глубокий космос</div>
+            <div class="gradient-item-desc">Звёздная туманность и ультрамарин</div>
+          </div>
+          <div class="gradient-check">✓</div>
+        </div>
+
+        <div class="gradient-item-card" data-gradient="cyber" onclick="setGradient('cyber')">
+          <div class="gradient-swatch-circle" style="background: radial-gradient(circle at 20% 20%, #631980, #133966);"></div>
+          <div class="gradient-item-info">
+            <div class="gradient-item-name">Неоновый киберпанк</div>
+            <div class="gradient-item-desc">Электро-фиолетовый с синим неоном</div>
+          </div>
+          <div class="gradient-check">✓</div>
+        </div>
+
+        <div class="gradient-item-card" data-gradient="emerald" onclick="setGradient('emerald')">
+          <div class="gradient-swatch-circle" style="background: radial-gradient(circle at 20% 20%, #205c3d, #102d21);"></div>
+          <div class="gradient-item-info">
+            <div class="gradient-item-name">Изумрудный бор</div>
+            <div class="gradient-item-desc">Хвойный мох, шалфей и нефрит</div>
+          </div>
+          <div class="gradient-check">✓</div>
+        </div>
+
+        <div class="gradient-item-card" data-gradient="ocean" onclick="setGradient('ocean')">
+          <div class="gradient-swatch-circle" style="background: radial-gradient(circle at 20% 20%, #155577, #0d283c);"></div>
+          <div class="gradient-item-info">
+            <div class="gradient-item-name">Морская бездна</div>
+            <div class="gradient-item-desc">Атлантическая глубина и аквамарин</div>
+          </div>
+          <div class="gradient-check">✓</div>
+        </div>
+
+        <div class="gradient-item-card" data-gradient="amethyst" onclick="setGradient('amethyst')">
+          <div class="gradient-swatch-circle" style="background: radial-gradient(circle at 20% 20%, #56367c, #26214a);"></div>
+          <div class="gradient-item-info">
+            <div class="gradient-item-name">Аметистовый туман</div>
+            <div class="gradient-item-desc">Лавандовый шёлк и драгоценный аметист</div>
+          </div>
+          <div class="gradient-check">✓</div>
+        </div>
+
+        <div class="gradient-item-card" data-gradient="none" onclick="setGradient('none')">
+          <div class="gradient-swatch-circle" style="background: #1e252b;"></div>
+          <div class="gradient-item-info">
+            <div class="gradient-item-name">Строгий тёмный</div>
+            <div class="gradient-item-desc">Матовый графитовый минимализм</div>
+          </div>
+          <div class="gradient-check">✓</div>
+        </div>
+      </div>
+
+      <!-- View 2: GIFs, Live Wallpapers & Transparency -->
+      <div id="modalViewGifs" style="display:none; flex-direction:column; gap:14px; max-height:440px; overflow-y:auto; padding-right:4px;">
+        <div style="font-size:12px; color:var(--md-on-surface-variant); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Коллекция анимированных GIF-обоев</div>
+        
+        <div class="gif-presets-grid">
+          <div class="gif-item-card" data-gif="cyberpunk" onclick="selectGifPreset('cyberpunk')">
+            <div class="gif-thumb" style="background-image: url('https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdW5oZnNmd3lyeXh3aGJrcmVmd2tzdTV2dXZ5bWdrOWFjcXR5eGVjeCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/26tn33aiTi1jklsBQ/giphy.gif');"></div>
+            <div class="gif-meta">
+              <div class="gif-name">Киберпанк</div>
+              <div class="gif-desc">Неоновый дождь</div>
+            </div>
+          </div>
+
+          <div class="gif-item-card" data-gif="nebula" onclick="selectGifPreset('nebula')">
+            <div class="gif-thumb" style="background-image: url('https://media.giphy.com/media/3o7bu3XilJ5BOiSGic/giphy.gif');"></div>
+            <div class="gif-meta">
+              <div class="gif-name">Космос</div>
+              <div class="gif-desc">Звёздная пыль</div>
+            </div>
+          </div>
+
+          <div class="gif-item-card" data-gif="retro_sunset" onclick="selectGifPreset('retro_sunset')">
+            <div class="gif-thumb" style="background-image: url('https://media.giphy.com/media/xT9IgzoKnwFNmISR8I/giphy.gif');"></div>
+            <div class="gif-meta">
+              <div class="gif-name">Ретро-вейв</div>
+              <div class="gif-desc">Синтвейв закат</div>
+            </div>
+          </div>
+
+          <div class="gif-item-card" data-gif="rain_window" onclick="selectGifPreset('rain_window')">
+            <div class="gif-thumb" style="background-image: url('https://media.giphy.com/media/t7Qb8655Z1VMA/giphy.gif');"></div>
+            <div class="gif-meta">
+              <div class="gif-name">Дождь</div>
+              <div class="gif-desc">Капли на окне</div>
+            </div>
+          </div>
+
+          <div class="gif-item-card" data-gif="lofi_room" onclick="selectGifPreset('lofi_room')">
+            <div class="gif-thumb" style="background-image: url('https://media.giphy.com/media/l4pT0NtPSMV3PW6Bi/giphy.gif');"></div>
+            <div class="gif-meta">
+              <div class="gif-name">Lo-Fi Чилл</div>
+              <div class="gif-desc">Ночной город</div>
+            </div>
+          </div>
+
+          <div class="gif-item-card" data-gif="minimal_waves" onclick="selectGifPreset('minimal_waves')">
+            <div class="gif-thumb" style="background-image: url('https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif');"></div>
+            <div class="gif-meta">
+              <div class="gif-name">Тёмные волны</div>
+              <div class="gif-desc">Плавный поток</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Custom Upload & URL -->
+        <div style="font-size:12px; color:var(--md-on-surface-variant); font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-top:4px;">Свой GIF или изображение</div>
+        <div class="custom-input-group">
+          <input type="file" id="localBgFileInput" accept="image/gif,image/webp,image/png,image/jpeg" style="display:none;" onchange="handleLocalBgFile(event)">
+          <div class="btn-action-small btn-action-secondary" onclick="document.getElementById('localBgFileInput').click()">📁 Загрузить файл с ПК...</div>
+          <input type="text" class="custom-url-input" id="customBgUrlInput" placeholder="Ссылка на GIF (URL)...">
+          <div class="btn-action-small" onclick="applyCustomUrl()">Применить</div>
+        </div>
+
+        <!-- Transparency & Blur Sliders -->
+        <div style="font-size:12px; color:var(--md-on-surface-variant); font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-top:4px;">Настройки прозрачности и размытия</div>
+        
+        <div class="control-row">
+          <div class="control-row-header">
+            <span>Затемнение подложки (прозрачность фона)</span>
+            <span class="control-row-val" id="bgOpacityVal">40%</span>
+          </div>
+          <input type="range" class="md3-slider" id="sliderBgOpacity" min="0" max="90" value="40" oninput="updateBgOpacity(this.value)">
+        </div>
+
+        <div class="control-row">
+          <div class="control-row-header">
+            <span>Размытие заднего фона (Backdrop Blur)</span>
+            <span class="control-row-val" id="bgBlurVal">0px</span>
+          </div>
+          <input type="range" class="md3-slider" id="sliderBgBlur" min="0" max="25" value="0" oninput="updateBgBlur(this.value)">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const GIF_PRESETS = {
+      cyberpunk: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdW5oZnNmd3lyeXh3aGJrcmVmd2tzdTV2dXZ5bWdrOWFjcXR5eGVjeCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/26tn33aiTi1jklsBQ/giphy.gif",
+      nebula: "https://media.giphy.com/media/3o7bu3XilJ5BOiSGic/giphy.gif",
+      retro_sunset: "https://media.giphy.com/media/xT9IgzoKnwFNmISR8I/giphy.gif",
+      rain_window: "https://media.giphy.com/media/t7Qb8655Z1VMA/giphy.gif",
+      lofi_room: "https://media.giphy.com/media/l4pT0NtPSMV3PW6Bi/giphy.gif",
+      minimal_waves: "https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif"
+    };
+
+    let selectedEngine = "google";
+    let chosenSetupEngine = "google";
+    let chosenSetupTheme = "md3_dark";
+    let chosenSetupGrad = "aurora";
+    let currentSettings = {
+      theme: "md3_dark",
+      accent_color: "#6750A4",
+      search_engine: "google",
+      adblock_enabled: true,
+      dark_mode_mode: "system",
+      dark_mode_brightness: 90,
+      dark_mode_contrast: 100,
+      multithread_downloader_enabled: true,
+      download_threads: 4,
+      first_run: false,
+      gradient: "aurora",
+      bg_type: "gradient",
+      gif_preset: "cyberpunk",
+      custom_bg_url: "",
+      bg_opacity: 40,
+      bg_blur: 0
+    };
+
+    function nav(url) {
+      if (!url) return;
+      if (window.ipc) {
+        window.ipc.postMessage(JSON.stringify({ action: "navigate", url: url }));
+      } else {
+        window.location.href = url;
+      }
+    }
+
+    function selectEngine(eng) {
+      selectedEngine = eng;
+      document.getElementById("engineOptGoogle").classList.toggle("active", eng === "google");
+      document.getElementById("engineOptDdg").classList.toggle("active", eng === "duckduckgo");
+    }
+
+    const searchInput = document.getElementById("newtabSearch");
+    const searchSubmitBtn = document.getElementById("searchSubmitBtn");
+
+    function executeSearch() {
+      const val = searchInput.value.trim();
+      if (!val) return;
+      if (val.startsWith("http://") || val.startsWith("https://") || (val.includes(".") && !val.includes(" "))) {
+        nav(val);
+      } else {
+        const encoded = encodeURIComponent(val);
+        if (selectedEngine === "duckduckgo") {
+          nav("https://duckduckgo.com/?q=" + encoded);
+        } else {
+          nav("https://www.google.com/search?q=" + encoded);
+        }
+      }
+    }
+
+    searchSubmitBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      executeSearch();
+    });
+
+    searchInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        e.stopPropagation();
+        executeSearch();
+      }
+    });
+
+    // Modal Tabs Switching
+    function switchModalTab(tabKey) {
+      document.getElementById("modalTabGrads").classList.toggle("active", tabKey === "grads");
+      document.getElementById("modalTabGifs").classList.toggle("active", tabKey === "gifs");
+      document.getElementById("modalViewGrads").style.display = tabKey === "grads" ? "grid" : "none";
+      document.getElementById("modalViewGifs").style.display = tabKey === "gifs" ? "flex" : "none";
+    }
+
+    // Wallpaper & Background visual application
+    function applyWallpaperVisual() {
+      const bgContainer = document.getElementById("bgMediaContainer");
+      const bgLayer = document.getElementById("bgMediaLayer");
+      const bgTint = document.getElementById("bgOverlayTint");
+      
+      if (currentSettings.bg_type === "gif" || currentSettings.bg_type === "custom") {
+        bgContainer.classList.add("active");
+        document.body.classList.add("has-gif-bg");
+        document.body.className = "has-gif-bg" + (currentSettings.theme === "win11" ? " theme-win11" : "");
+        
+        let url = "";
+        if (currentSettings.bg_type === "custom") {
+          url = currentSettings.custom_bg_url;
+        } else {
+          url = GIF_PRESETS[currentSettings.gif_preset] || GIF_PRESETS.cyberpunk;
+        }
+        bgLayer.style.backgroundImage = `url("${url}")`;
+        const opacity = (currentSettings.bg_opacity != null ? currentSettings.bg_opacity : 40) / 100;
+        const blur = currentSettings.bg_blur != null ? currentSettings.bg_blur : 0;
+        bgTint.style.background = `rgba(10, 14, 18, ${opacity})`;
+        bgLayer.style.filter = `blur(${blur}px)`;
+        
+        document.querySelectorAll(".gif-item-card").forEach(c => {
+          c.classList.toggle("active", currentSettings.bg_type === "gif" && c.getAttribute("data-gif") === currentSettings.gif_preset);
+        });
+      } else {
+        bgContainer.classList.remove("active");
+        document.body.classList.remove("has-gif-bg");
+        applyGradientVisual(currentSettings.gradient || "aurora");
+      }
+      
+      if (currentSettings.theme === "win11") {
+        document.body.classList.add("theme-win11");
+      }
+    }
+
+    function applyGradientVisual(name) {
+      const grad = name || "aurora";
+      document.body.className = "grad-" + grad + (currentSettings.theme === "win11" ? " theme-win11" : "");
+      document.querySelectorAll(".gradient-item-card").forEach(c => {
+        c.classList.toggle("active", c.getAttribute("data-gradient") === grad);
+      });
+    }
+
+    function persistSettings() {
+      if (window.ipc) {
+        window.ipc.postMessage(JSON.stringify({
+          action: "update_settings",
+          settings: currentSettings
+        }));
+      }
+      try {
+        localStorage.setItem("rustium_settings", JSON.stringify(currentSettings));
+      } catch(e) {}
+    }
+
+    function setGradient(name) {
+      currentSettings.bg_type = "gradient";
+      currentSettings.gradient = name;
+      applyWallpaperVisual();
+      persistSettings();
+    }
+
+    function selectGifPreset(presetKey) {
+      currentSettings.bg_type = "gif";
+      currentSettings.gif_preset = presetKey;
+      applyWallpaperVisual();
+      persistSettings();
+    }
+
+    function handleLocalBgFile(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        currentSettings.bg_type = "custom";
+        currentSettings.custom_bg_url = evt.target.result;
+        applyWallpaperVisual();
+        persistSettings();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function applyCustomUrl() {
+      const input = document.getElementById("customBgUrlInput");
+      const url = input.value.trim();
+      if (!url) return;
+      currentSettings.bg_type = "custom";
+      currentSettings.custom_bg_url = url;
+      applyWallpaperVisual();
+      persistSettings();
+    }
+
+    function updateBgOpacity(val) {
+      currentSettings.bg_opacity = parseInt(val, 10);
+      document.getElementById("bgOpacityVal").textContent = val + "%";
+      applyWallpaperVisual();
+      persistSettings();
+    }
+
+    function updateBgBlur(val) {
+      currentSettings.bg_blur = parseInt(val, 10);
+      document.getElementById("bgBlurVal").textContent = val + "px";
+      applyWallpaperVisual();
+      persistSettings();
+    }
+
+    function openGradientModal() {
+      document.getElementById("gradientModal").classList.add("show");
+    }
+
+    function closeGradientModal() {
+      document.getElementById("gradientModal").classList.remove("show");
+    }
+
+    // Initial Setup Dialog logic
+    function setSetupEngine(eng) {
+      chosenSetupEngine = eng;
+      document.getElementById("setupChoiceGoogle").classList.toggle("selected", eng === "google");
+      document.getElementById("setupChoiceDdg").classList.toggle("selected", eng === "duckduckgo");
+      document.getElementById("setupChoiceGoogle").querySelector("div:last-child").textContent = eng === "google" ? "✓" : "";
+      document.getElementById("setupChoiceDdg").querySelector("div:last-child").textContent = eng === "duckduckgo" ? "✓" : "";
+    }
+
+    function setSetupTheme(theme) {
+      chosenSetupTheme = theme;
+      document.getElementById("setupThemeDark").classList.toggle("selected", theme === "md3_dark");
+      document.getElementById("setupThemeLight").classList.toggle("selected", theme === "md3_light");
+      document.getElementById("setupThemeWin11").classList.toggle("selected", theme === "win11");
+      document.getElementById("setupThemeAmoled").classList.toggle("selected", theme === "amoled");
+    }
+
+    function setSetupGrad(grad) {
+      chosenSetupGrad = grad;
+      document.getElementById("setupGradAurora").classList.toggle("selected", grad === "aurora");
+      document.getElementById("setupGradSunset").classList.toggle("selected", grad === "sunset");
+      document.getElementById("setupGradCosmos").classList.toggle("selected", grad === "cosmos");
+      document.getElementById("setupGradCyber").classList.toggle("selected", grad === "cyber");
+    }
+
+    function saveInitialSetup() {
+      selectEngine(chosenSetupEngine);
+      setGradient(chosenSetupGrad);
+      currentSettings.theme = chosenSetupTheme;
+      if (window.ipc) {
+        window.ipc.postMessage(JSON.stringify({
+          action: "update_settings",
+          settings: {
+            ...currentSettings,
+            theme: chosenSetupTheme,
+            search_engine: chosenSetupEngine,
+            first_run: false,
+            gradient: chosenSetupGrad
+          }
+        }));
+      }
+      applyWallpaperVisual();
+      document.getElementById("setupOverlay").classList.remove("show");
+    }
+
+    window.__rustium_render_newtab__ = function(settings) {
+      if (!settings) return;
+      currentSettings = { ...currentSettings, ...settings };
+      if (settings.search_engine) selectEngine(settings.search_engine);
+      if (settings.bg_opacity != null) {
+        const el = document.getElementById("sliderBgOpacity");
+        if (el) el.value = settings.bg_opacity;
+        const valEl = document.getElementById("bgOpacityVal");
+        if (valEl) valEl.textContent = settings.bg_opacity + "%";
+      }
+      if (settings.bg_blur != null) {
+        const el = document.getElementById("sliderBgBlur");
+        if (el) el.value = settings.bg_blur;
+        const valEl = document.getElementById("bgBlurVal");
+        if (valEl) valEl.textContent = settings.bg_blur + "px";
+      }
+      applyWallpaperVisual();
+    };
+
+    // Check if initial setup is needed & load saved wallpaper/gradient
+    window.addEventListener("DOMContentLoaded", () => {
+      try {
+        const saved = localStorage.getItem("rustium_settings");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          currentSettings = { ...currentSettings, ...parsed };
+        }
+      } catch(e) {}
+      applyWallpaperVisual();
+
+      if (!localStorage.getItem("rustium_setup_completed")) {
+        document.getElementById("setupOverlay").classList.add("show");
+        localStorage.setItem("rustium_setup_completed", "true");
+      }
+
+      if (window.ipc) {
+        window.ipc.postMessage(JSON.stringify({ action: "get_state" }));
+      }
+    });
+  </script>
+</body>
+</html>

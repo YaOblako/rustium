@@ -1,0 +1,1707 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Rustium 1.1.1 Chrome</title>
+  <style>
+    /* -------------------------------------------------------------
+       Google Chrome MD3 & Firefox Proton Tab System
+       STRICT ZERO BORDERS / STROKES - Tonal Surface Hierarchy Only
+       MD3 Motion System: cubic-bezier(0.2, 0, 0, 1)
+       ------------------------------------------------------------- */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      border: none !important;
+      outline: none !important;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    :root {
+      /* Dynamic MD3 Tonal Surface Palette (Defaults: MD3 Dark) */
+      --md-surface-lowest: #0e1215;
+      --md-surface-low: #151a1d;
+      --md-surface: #1b2125;
+      --md-surface-high: #242c30;
+      --md-surface-highest: #2e363c;
+
+      --md-primary: #a8c7fa;
+      --md-on-primary: #003258;
+      --md-primary-container: #00497d;
+      --md-on-primary-container: #d3e3fd;
+
+      --md-secondary-container: #3c4858;
+      --md-on-secondary-container: #d7e3f8;
+
+      --md-on-surface: #e1e3e5;
+      --md-on-surface-variant: #c1c7ce;
+      --md-surface-tint: rgba(168, 199, 250, 0.08);
+
+      --md-state-hover: rgba(225, 227, 229, 0.08);
+      --md-state-pressed: rgba(225, 227, 229, 0.16);
+
+      /* MD3 Shapes */
+      --radius-pill: 9999px;
+      --radius-card: 16px;
+      --radius-dialog: 24px;
+      --radius-tab: 10px;
+
+      /* MD3 Motion */
+      --motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+      --motion-easing-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+      --motion-duration-short: 0.15s;
+      --motion-duration-medium: 0.22s;
+
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    }
+
+    html, body {
+      background: transparent !important;
+      color: var(--md-on-surface);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* -------------------------------------------------------------
+       Row 1: Chrome MD3 Tab Bar + Custom Titlebar Window Controls
+       ------------------------------------------------------------- */
+    .tab-strip {
+      height: 42px;
+      background: var(--md-surface-low);
+      display: flex;
+      align-items: center;
+      padding: 4px 0 0 8px;
+      gap: 6px;
+      flex-shrink: 0;
+      -webkit-app-region: drag;
+      transition: background 0.3s ease;
+    }
+
+    body.grad-aurora .tab-strip {
+      background: linear-gradient(90deg, #0d2826 0%, #0e202e 50%, #151a1d 100%);
+    }
+    body.grad-sunset .tab-strip {
+      background: linear-gradient(90deg, #2d1424 0%, #29122a 50%, #151a1d 100%);
+    }
+    body.grad-cosmos .tab-strip {
+      background: linear-gradient(90deg, #121834 0%, #1c1332 50%, #151a1d 100%);
+    }
+    body.grad-cyber .tab-strip {
+      background: linear-gradient(90deg, #230d2e 0%, #0d1e34 50%, #151a1d 100%);
+    }
+    body.grad-emerald .tab-strip {
+      background: linear-gradient(90deg, #0e2218 0%, #12281e 50%, #151a1d 100%);
+    }
+    body.grad-ocean .tab-strip {
+      background: linear-gradient(90deg, #081d2c 0%, #0a2534 50%, #151a1d 100%);
+    }
+    body.grad-amethyst .tab-strip {
+      background: linear-gradient(90deg, #1f1430 0%, #1a1732 50%, #151a1d 100%);
+    }
+    body.grad-none .tab-strip {
+      background: var(--md-surface-low);
+    }
+
+    /* Brand Logo Button */
+    .brand-btn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-tab);
+      cursor: pointer;
+      flex-shrink: 0;
+      -webkit-app-region: no-drag;
+      transition: background var(--motion-duration-short) var(--motion-easing-standard), transform 0.1s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .brand-btn:hover {
+      background: var(--md-state-hover);
+      transform: scale(1.05);
+    }
+    .brand-btn:active {
+      transform: scale(0.95);
+    }
+    .brand-logo-svg {
+      width: 26px;
+      height: 26px;
+      display: block;
+    }
+
+    /* Tabs Container */
+    .tab-list {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      max-width: calc(100% - 210px);
+      -webkit-app-region: no-drag;
+    }
+    .tab-list::-webkit-scrollbar { display: none; }
+
+    /* Chrome MD3 Custom Tab */
+    .tab-item {
+      height: 36px;
+      min-width: 140px;
+      max-width: 220px;
+      border-radius: var(--radius-tab) var(--radius-tab) 0 0;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      gap: 8px;
+      cursor: pointer;
+      transition: background var(--motion-duration-short) var(--motion-easing-standard), transform var(--motion-duration-short) var(--motion-easing-standard);
+      position: relative;
+      overflow: hidden;
+      -webkit-app-region: no-drag;
+    }
+    .tab-item:hover {
+      background: var(--md-surface);
+    }
+    .tab-item.active {
+      background: var(--md-surface-highest);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    }
+    .tab-item.pinned {
+      min-width: 42px;
+      max-width: 42px;
+      padding: 0 11px;
+      justify-content: center;
+    }
+    .tab-item.pinned .tab-title,
+    .tab-item.pinned .tab-close-btn {
+      display: none;
+    }
+
+    .tab-favicon {
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .tab-favicon svg {
+      width: 16px;
+      height: 16px;
+      display: block;
+    }
+
+    .tab-title {
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+      color: var(--md-on-surface-variant);
+    }
+    .tab-item.active .tab-title {
+      color: var(--md-on-surface);
+      font-weight: 600;
+    }
+
+    .tab-btn {
+      width: 20px;
+      height: 20px;
+      border-radius: var(--radius-pill);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--md-on-surface-variant);
+      cursor: pointer;
+      transition: background var(--motion-duration-short) var(--motion-easing-standard), color var(--motion-duration-short) ease;
+    }
+    .tab-btn svg {
+      width: 12px;
+      height: 12px;
+      display: block;
+    }
+    .tab-btn:hover {
+      background: var(--md-state-hover);
+      color: var(--md-on-surface);
+    }
+
+    /* Plus button immediately after the last tab */
+    .new-tab-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: var(--radius-pill);
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      color: var(--md-on-surface-variant);
+      transition: background var(--motion-duration-short) var(--motion-easing-standard), color var(--motion-duration-short) ease, transform 0.1s ease;
+      -webkit-app-region: no-drag;
+      position: relative;
+      overflow: hidden;
+    }
+    .new-tab-btn svg {
+      width: 16px;
+      height: 16px;
+      display: block;
+    }
+    .new-tab-btn:hover {
+      background: var(--md-surface);
+      color: var(--md-on-surface);
+      transform: scale(1.05);
+    }
+    .new-tab-btn:active {
+      transform: scale(0.92);
+    }
+
+    /* Spacer for window dragging */
+    .tab-strip-spacer {
+      flex: 1;
+      height: 100%;
+      -webkit-app-region: drag;
+    }
+
+    /* Custom Titlebar Window Controls (Windows 11 Chrome Style) */
+    .window-controls {
+      display: flex;
+      align-items: center;
+      height: 100%;
+      -webkit-app-region: no-drag;
+    }
+    .win-btn {
+      width: 46px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--md-on-surface-variant);
+      transition: background 0.12s ease, color 0.12s ease;
+      background: transparent;
+    }
+    .win-btn svg {
+      width: 12px;
+      height: 12px;
+      display: block;
+    }
+    .win-btn:hover {
+      background: var(--md-state-hover);
+      color: var(--md-on-surface);
+    }
+    .win-btn.close:hover {
+      background: #e81123 !important;
+      color: #ffffff !important;
+    }
+
+    /* -------------------------------------------------------------
+       Row 2: Google Chrome MD3 Navigation & Omnibox Toolbar
+       ------------------------------------------------------------- */
+    .nav-bar {
+      height: 44px;
+      background: var(--md-surface);
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      gap: 6px;
+      flex-shrink: 0;
+      -webkit-app-region: no-drag;
+    }
+
+    .nav-icon-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-pill);
+      background: transparent;
+      color: var(--md-on-surface-variant);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background var(--motion-duration-short) var(--motion-easing-standard), color var(--motion-duration-short) ease, transform 0.1s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .nav-icon-btn svg {
+      width: 18px;
+      height: 18px;
+      display: block;
+    }
+    .nav-icon-btn:hover {
+      background: var(--md-state-hover);
+      color: var(--md-on-surface);
+    }
+    .nav-icon-btn:active {
+      transform: scale(0.92);
+      background: var(--md-state-pressed);
+    }
+    .nav-icon-btn.disabled {
+      opacity: 0.35;
+      pointer-events: none;
+    }
+
+    /* Omnibox */
+    .omnibox-container {
+      flex: 1;
+      height: 34px;
+      background: var(--md-surface-low);
+      border-radius: var(--radius-pill);
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      gap: 8px;
+      transition: background var(--motion-duration-medium) var(--motion-easing-standard), box-shadow var(--motion-duration-medium) var(--motion-easing-standard);
+      position: relative;
+    }
+    .omnibox-container:focus-within {
+      background: var(--md-surface-highest);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Tracking Protection Shield */
+    .shield-badge-btn {
+      height: 24px;
+      padding: 0 8px;
+      border-radius: var(--radius-pill);
+      background: var(--md-surface-high);
+      color: var(--md-primary);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background var(--motion-duration-short) var(--motion-easing-standard), transform 0.1s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .shield-badge-btn svg {
+      width: 14px;
+      height: 14px;
+      display: block;
+    }
+    .shield-badge-btn:hover {
+      background: var(--md-surface-highest);
+      transform: scale(1.05);
+    }
+    .shield-badge-btn.active {
+      background: var(--md-primary-container);
+      color: var(--md-on-primary-container);
+    }
+    .badge-count {
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    /* Site Permissions & Security Badge (Lock) */
+    .security-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #79c99e;
+      cursor: pointer;
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: var(--radius-pill);
+      transition: background var(--motion-duration-short) var(--motion-easing-standard);
+    }
+    .security-badge:hover {
+      background: var(--md-state-hover);
+    }
+    .security-badge svg {
+      width: 15px;
+      height: 15px;
+      display: block;
+    }
+
+    .omnibox-input {
+      flex: 1;
+      background: transparent;
+      color: var(--md-on-surface);
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 0.1px;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+    .omnibox-input::placeholder {
+      color: var(--md-on-surface-variant);
+      opacity: 0.65;
+    }
+
+    .omnibox-inner-actions {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+    .inner-action-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: var(--radius-pill);
+      background: transparent;
+      color: var(--md-on-surface-variant);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background var(--motion-duration-short) var(--motion-easing-standard), color var(--motion-duration-short) ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .inner-action-btn svg {
+      width: 15px;
+      height: 15px;
+      display: block;
+    }
+    .inner-action-btn:hover {
+      background: var(--md-state-hover);
+      color: var(--md-on-surface);
+    }
+    .inner-action-btn.active {
+      color: var(--md-primary);
+    }
+
+    /* Toolbar Actions on Right */
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .action-chip {
+      height: 32px;
+      padding: 0 8px;
+      border-radius: var(--radius-tab);
+      background: transparent;
+      color: var(--md-on-surface-variant);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: background var(--motion-duration-short) var(--motion-easing-standard), color var(--motion-duration-short) ease;
+    }
+    .action-chip svg {
+      width: 18px;
+      height: 18px;
+      display: block;
+    }
+    .action-chip:hover {
+      background: var(--md-state-hover);
+      color: var(--md-on-surface);
+    }
+
+    .download-badge-count {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      background: var(--md-primary);
+      color: var(--md-on-primary);
+      font-size: 9px;
+      font-weight: 700;
+      padding: 1px 4px;
+      border-radius: var(--radius-pill);
+    }
+
+    /* -------------------------------------------------------------
+       MD3 Popovers & Menus (Zero Borders, Tonal Surfaces)
+       ------------------------------------------------------------- */
+    .popover-card {
+      position: absolute;
+      top: 76px;
+      background: var(--md-surface-high);
+      color: var(--md-on-surface);
+      border-radius: var(--radius-card);
+      padding: 12px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65);
+      z-index: 1000;
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 280px;
+      max-width: 380px;
+      max-height: calc(100vh - 84px);
+      overflow-y: auto;
+    }
+    .popover-card.show {
+      display: flex;
+      animation: md3PopIn var(--motion-duration-medium) var(--motion-easing-decelerate);
+    }
+
+    @keyframes md3PopIn {
+      from { opacity: 0; transform: scale(0.92) translateY(-10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .popover-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .popover-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--md-on-surface);
+    }
+    .popover-subtitle {
+      font-size: 12px;
+      color: var(--md-on-surface-variant);
+    }
+
+    .switch-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: var(--md-surface);
+      border-radius: var(--radius-tab);
+    }
+    .switch-label {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .md3-switch {
+      width: 44px;
+      height: 24px;
+      background: var(--md-surface-highest);
+      border-radius: var(--radius-pill);
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s var(--motion-easing-standard);
+      flex-shrink: 0;
+    }
+    .md3-switch.checked {
+      background: var(--md-primary);
+    }
+    .md3-switch-thumb {
+      width: 18px;
+      height: 18px;
+      background: var(--md-on-surface-variant);
+      border-radius: var(--radius-pill);
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.2s var(--motion-easing-standard), background 0.2s ease;
+    }
+    .md3-switch.checked .md3-switch-thumb {
+      transform: translateX(20px);
+      background: var(--md-on-primary);
+    }
+
+    /* Sliders */
+    .slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: var(--md-surface);
+      padding: 10px 12px;
+      border-radius: var(--radius-tab);
+    }
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--md-on-surface-variant);
+    }
+    .md3-slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: var(--radius-pill);
+      background: var(--md-surface-highest);
+      outline: none;
+    }
+    .md3-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: var(--radius-pill);
+      background: var(--md-primary);
+      cursor: pointer;
+      transition: transform 0.15s var(--motion-easing-standard);
+    }
+    .md3-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.25);
+    }
+
+    /* Downloads List & Items */
+    .dl-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+    .dl-item {
+      background: var(--md-surface);
+      padding: 10px 12px;
+      border-radius: var(--radius-tab);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .dl-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .dl-name {
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 180px;
+    }
+    .dl-speed {
+      font-size: 11px;
+      color: var(--md-primary);
+      font-weight: 600;
+    }
+    .dl-progress-track {
+      height: 4px;
+      background: var(--md-surface-highest);
+      border-radius: var(--radius-pill);
+      overflow: hidden;
+    }
+    .dl-progress-bar {
+      height: 100%;
+      background: var(--md-primary);
+      border-radius: var(--radius-pill);
+      transition: width 0.3s ease;
+    }
+    .dl-actions-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .dl-action-btn {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      background: var(--md-surface-highest);
+      color: var(--md-on-surface);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .dl-action-btn:hover {
+      background: var(--md-secondary-container);
+    }
+    .dl-cancel-btn {
+      color: #ff897d;
+    }
+
+    /* Extensions Popover List (Matching Image 8) */
+    .ext-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      max-height: 420px;
+      overflow-y: auto;
+    }
+    .ext-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 10px;
+      background: transparent;
+      border-radius: var(--radius-tab);
+      cursor: pointer;
+      transition: background 0.15s ease;
+      position: relative;
+    }
+    .ext-item:hover {
+      background: var(--md-surface);
+    }
+    .ext-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--md-surface-highest);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--md-on-surface);
+      position: relative;
+    }
+    .ext-icon svg {
+      width: 20px;
+      height: 20px;
+    }
+    .ext-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: #ff4d4f;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 9999px;
+      padding: 1px 5px;
+      line-height: 1;
+    }
+    .ext-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+    .ext-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--md-on-surface);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ext-sub {
+      font-size: 11px;
+      color: var(--md-on-surface-variant);
+      line-height: 1.3;
+    }
+    .ext-more-dots {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      color: var(--md-on-surface-variant);
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .ext-more-dots:hover {
+      background: var(--md-surface-highest);
+      color: var(--md-on-surface);
+    }
+
+    /* App Menu Items (Compact & Elegant - Zero Cutoff) */
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 7px 12px;
+      border-radius: var(--radius-tab);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--md-on-surface);
+      background: transparent;
+      transition: background var(--motion-duration-short) var(--motion-easing-standard);
+      position: relative;
+      overflow: hidden;
+    }
+    .menu-item:hover {
+      background: var(--md-surface);
+    }
+    .menu-item-icon {
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--md-on-surface-variant);
+    }
+    .menu-item-icon svg {
+      width: 18px;
+      height: 18px;
+      display: block;
+    }
+    .menu-item-title {
+      flex: 1;
+    }
+    .menu-item-shortcut {
+      font-size: 11px;
+      color: var(--md-on-surface-variant);
+    }
+
+    .tonal-btn {
+      padding: 8px 16px;
+      border-radius: var(--radius-pill);
+      background: var(--md-secondary-container);
+      color: var(--md-on-secondary-container);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: background var(--motion-duration-short) var(--motion-easing-standard), transform 0.1s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .tonal-btn:hover {
+      background: var(--md-primary-container);
+      color: var(--md-on-primary-container);
+      transform: scale(1.02);
+    }
+    .tonal-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* MD3 Click Ripple */
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      transform: scale(0);
+      animation: rippleEffect 0.4s cubic-bezier(0.2, 0, 0, 1);
+      background-color: var(--md-state-pressed);
+      pointer-events: none;
+    }
+    @keyframes rippleEffect {
+      to {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Row 1: Chrome MD3 Tab Bar + Custom Titlebar Window Controls -->
+  <div class="tab-strip" id="mainTabStrip">
+    <!-- Rustium "R" Brand Logo -->
+    <div class="brand-btn" id="brandLogoBtn" title="О браузере Rustium 1.1.1">
+      <svg class="brand-logo-svg" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="rGradChrome" x1="4" y1="4" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#ff7043"/>
+            <stop offset="50%" stop-color="#f4511e"/>
+            <stop offset="100%" stop-color="#7c4dff"/>
+          </linearGradient>
+          <linearGradient id="flameGradChrome" x1="0" y1="24" x2="48" y2="24" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#ffb74d"/>
+            <stop offset="100%" stop-color="#ff3d00"/>
+          </linearGradient>
+        </defs>
+        <rect x="2" y="2" width="44" height="44" rx="12" fill="url(#rGradChrome)"/>
+        <path d="M6 34C10 40 22 45 34 40C43 36 46 25 42 16C40 12 37 9 34 8C33 12 30 16 26 18C32 20 35 25 33 30C30 35 22 37 15 35C11 34 8 31 6 28Z" fill="url(#flameGradChrome)" opacity="0.6"/>
+        <path d="M15 12H26.5C31 12 34 14.8 34 19C34 22.2 31.8 24.6 28.5 25.4L35 36H28.8L23 26.5H20.5V36H15V12ZM20.5 21.8H26C28.2 21.8 29.5 20.7 29.5 19C29.5 17.3 28.2 16.2 26 16.2H20.5V21.8Z" fill="#ffffff"/>
+      </svg>
+    </div>
+
+    <!-- Chrome MD3 Tabs Container -->
+    <div class="tab-list" id="tabList"></div>
+
+    <!-- Plus Button immediately after the last tab -->
+    <div class="new-tab-btn" id="newTabBtn" title="Новая вкладка (Ctrl+T)">
+      <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" fill="currentColor"/></svg>
+    </div>
+
+    <!-- Spacer for Dragging the Window -->
+    <div class="tab-strip-spacer" id="tabStripSpacer"></div>
+
+    <!-- Custom Window Controls (─ □ ✕) -->
+    <div class="window-controls">
+      <div class="win-btn" id="winMinimizeBtn" title="Свернуть">
+        <svg viewBox="0 0 12 12"><path d="M1 6h10" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
+      </div>
+      <div class="win-btn" id="winMaximizeBtn" title="Развернуть">
+        <svg viewBox="0 0 12 12"><rect x="1.5" y="1.5" width="9" height="9" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
+      </div>
+      <div class="win-btn close" id="winCloseBtn" title="Закрыть (Alt+F4)">
+        <svg viewBox="0 0 12 12"><path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2: Navigation & Omnibox Toolbar -->
+  <div class="nav-bar">
+    <div class="nav-icon-btn" id="backBtn" title="Назад (Alt+Left)">
+      <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" fill="currentColor"/></svg>
+    </div>
+    <div class="nav-icon-btn" id="forwardBtn" title="Вперед (Alt+Right)">
+      <svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" fill="currentColor"/></svg>
+    </div>
+    <div class="nav-icon-btn" id="reloadBtn" title="Обновить (F5)">
+      <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" fill="currentColor"/></svg>
+    </div>
+    <div class="nav-icon-btn" id="homeBtn" title="Домашняя страница">
+      <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" fill="currentColor"/></svg>
+    </div>
+
+    <!-- Omnibox -->
+    <div class="omnibox-container">
+      <!-- Tracking Protection Shield -->
+      <div class="shield-badge-btn" id="adblockBtn" title="Защита от отслеживания и рекламы uBlock/Brave">
+        <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z" fill="currentColor"/></svg>
+        <span class="badge-count" id="adblockCountBadge">0</span>
+      </div>
+
+      <!-- Security / Site Permissions Lock Badge -->
+      <div class="security-badge" id="secBadge" title="Безопасность соединения и разрешения">
+        <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" fill="currentColor"/></svg>
+      </div>
+
+      <input type="text" class="omnibox-input" id="omniboxInput" spellcheck="false" autocomplete="off" placeholder="Введите поисковый запрос Google или веб-адрес...">
+
+      <div class="omnibox-inner-actions">
+        <!-- Dark Mode Toggle Button -->
+        <div class="inner-action-btn" id="darkModeBtn" title="Автоматическая тёмная тема (Dark Reader)">
+          <svg viewBox="0 0 24 24"><path d="M12.3 2a10 10 0 0 0-.19 20 10.04 10.04 0 0 0 9.8-7.61 1 1 0 0 0-1.17-1.24 8 8 0 0 1-9.82-9.82 1 1 0 0 0-1.24-1.17c-.46.12-.92.27-1.38.44z" fill="currentColor"/></svg>
+        </div>
+
+        <!-- Bookmark Star Button -->
+        <div class="inner-action-btn" id="bookmarkBtn" title="Добавить в закладки (Ctrl+D)">
+          <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" fill="currentColor"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Toolbar Actions -->
+    <div class="toolbar-actions">
+      <!-- Downloads Button -->
+      <div class="action-chip" id="downloadsBtn" title="Загрузки (Ctrl+J)">
+        <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="currentColor"/></svg>
+        <span class="download-badge-count" id="dlCountBadge" style="display:none;">0</span>
+      </div>
+
+      <!-- Extensions Menu (Puzzle Icon) -->
+      <div class="action-chip" id="extensionsBtn" title="Расширения">
+        <svg viewBox="0 0 24 24"><path d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5a2.5 2.5 0 0 0-5 0V5H4c-1.1 0-1.99.9-1.99 2v3.8H3.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7 1.49 0 2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5a2.5 2.5 0 0 0 0-5z" fill="currentColor"/></svg>
+      </div>
+
+      <!-- Application Menu (Hamburger) -->
+      <div class="action-chip" id="appMenuBtn" title="Меню приложения">
+        <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" fill="currentColor"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- -------------------------------------------------------------
+       Popovers
+       ------------------------------------------------------------- -->
+
+  <!-- 1. Adblock Popover -->
+  <div class="popover-card" id="adblockPopover" style="left: 120px;">
+    <div class="popover-header">
+      <div>
+        <div class="popover-title">Защита от трекеров и рекламы</div>
+        <div class="popover-subtitle" id="adblockCurrentDomain">Для текущего сайта</div>
+      </div>
+      <div style="color:var(--md-primary);">
+        <svg style="width:24px;height:24px;" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z" fill="currentColor"/></svg>
+      </div>
+    </div>
+    <div class="switch-row">
+      <span class="switch-label">Включен для этого сайта</span>
+      <div class="md3-switch checked" id="adblockToggle">
+        <div class="md3-switch-thumb"></div>
+      </div>
+    </div>
+    <div class="switch-row">
+      <span class="switch-label">Заблокировано на странице</span>
+      <span style="font-weight:700; color:var(--md-primary);" id="adblockPageCount">0</span>
+    </div>
+    <div class="switch-row">
+      <span class="switch-label">Всего заблокировано</span>
+      <span style="font-weight:700; color:var(--md-on-surface-variant);" id="adblockTotalCount">0</span>
+    </div>
+  </div>
+
+  <!-- 2. Site Permissions & Security Popover (Lock) -->
+  <div class="popover-card" id="securityPopover" style="left: 170px;">
+    <div class="popover-header">
+      <div>
+        <div class="popover-title">Безопасность соединения</div>
+        <div class="popover-subtitle" id="secCurrentDomain">Текущий веб-узел</div>
+      </div>
+      <div style="color:#79c99e;">
+        <svg style="width:22px;height:22px;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" fill="currentColor"/></svg>
+      </div>
+    </div>
+    <div style="font-size:12px; color:var(--md-on-surface-variant); line-height: 1.5; background:var(--md-surface); padding:8px 12px; border-radius:10px;">
+      Подключение защищено. Данные (пароли, номера карт) шифруются по протоколу TLS 1.3 и передаются конфиденциально.
+    </div>
+    <div class="switch-row">
+      <span class="switch-label">Геолокация</span>
+      <div class="md3-switch" id="permGeoToggle"><div class="md3-switch-thumb"></div></div>
+    </div>
+    <div class="switch-row">
+      <span class="switch-label">Доступ к микрофону</span>
+      <div class="md3-switch" id="permMicToggle"><div class="md3-switch-thumb"></div></div>
+    </div>
+    <div class="switch-row">
+      <span class="switch-label">Доступ к камере</span>
+      <div class="md3-switch" id="permCamToggle"><div class="md3-switch-thumb"></div></div>
+    </div>
+    <div class="tonal-btn" id="clearCookiesBtn" style="width: 100%;">Очистить файлы cookie сайта</div>
+  </div>
+
+  <!-- 3. Dark Mode Popover -->
+  <div class="popover-card" id="darkModePopover" style="right: 140px;">
+    <div class="popover-header">
+      <div>
+        <div class="popover-title">Автоматическая тёмная тема</div>
+        <div class="popover-subtitle">Технология Dark Reader</div>
+      </div>
+      <div style="color:var(--md-primary);">
+        <svg style="width:22px;height:22px;" viewBox="0 0 24 24"><path d="M12.3 2a10 10 0 0 0-.19 20 10.04 10.04 0 0 0 9.8-7.61 1 1 0 0 0-1.17-1.24 8 8 0 0 1-9.82-9.82 1 1 0 0 0-1.24-1.17c-.46.12-.92.27-1.38.44z" fill="currentColor"/></svg>
+      </div>
+    </div>
+    <div class="switch-row">
+      <span class="switch-label">Включить на этом сайте</span>
+      <div class="md3-switch checked" id="darkModeSiteToggle">
+        <div class="md3-switch-thumb"></div>
+      </div>
+    </div>
+    <div class="slider-group">
+      <div class="slider-header">
+        <span>Яркость</span>
+        <span id="brightnessVal">90%</span>
+      </div>
+      <input type="range" class="md3-slider" id="brightnessSlider" min="50" max="150" value="90">
+    </div>
+    <div class="slider-group">
+      <div class="slider-header">
+        <span>Контрастность</span>
+        <span id="contrastVal">100%</span>
+      </div>
+      <input type="range" class="md3-slider" id="contrastSlider" min="50" max="150" value="100">
+    </div>
+  </div>
+
+  <!-- 4. Downloads Popover -->
+  <div class="popover-card" id="downloadsPopover" style="right: 50px; min-width: 320px;">
+    <div class="popover-header">
+      <div class="popover-title">Загрузки</div>
+      <div class="tonal-btn" id="openDlFolderBtn">Папка файлов</div>
+    </div>
+    <div class="dl-list" id="popoverDlList">
+      <div style="font-size:12px; color:var(--md-on-surface-variant); text-align:center; padding: 12px;">
+        Нет активных загрузок
+      </div>
+    </div>
+    <div class="tonal-btn" id="openFullDlPageBtn" style="width: 100%;">Все загрузки...</div>
+  </div>
+
+  <!-- 5. Extensions Popover (Matching Image 8) -->
+  <div class="popover-card" id="extensionsPopover" style="right: 36px; min-width: 330px; padding: 14px 12px 10px 12px;">
+    <div style="font-size:15px; font-weight:600; text-align:center; color:var(--md-on-surface); padding-bottom:8px;">
+      Расширения
+    </div>
+    <div class="ext-list" id="popoverExtList">
+      <!-- 1. Cookie-Editor -->
+      <div class="ext-item" onclick="sendIpc({ action: 'navigate', url: 'rustium://extensions' })">
+        <div class="ext-icon" style="background:#262a2d;">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="9" r="1.5" fill="currentColor"/><circle cx="15" cy="8" r="1.5" fill="currentColor"/><circle cx="13" cy="15" r="1.5" fill="currentColor"/><circle cx="9" cy="14" r="1" fill="currentColor"/></svg>
+        </div>
+        <div class="ext-info">
+          <div class="ext-name">Cookie-Editor</div>
+          <div class="ext-sub">Всегда может читать и изменять данные на этой странице</div>
+        </div>
+        <div class="ext-more-dots" title="Настройки">
+          <svg style="width:18px;height:18px;" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" fill="currentColor"/></svg>
+        </div>
+      </div>
+
+      <!-- 2. RoGold -->
+      <div class="ext-item" onclick="sendIpc({ action: 'navigate', url: 'rustium://extensions' })">
+        <div class="ext-icon" style="background:#1e2428; color:#fff; font-weight:700;">
+          R
+        </div>
+        <div class="ext-info">
+          <div class="ext-name">RoGold - Level Up Roblox</div>
+          <div class="ext-sub">Не может читать и изменять данные на этой странице</div>
+        </div>
+        <div class="ext-more-dots" title="Настройки">
+          <svg style="width:18px;height:18px;" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" fill="currentColor"/></svg>
+        </div>
+      </div>
+
+      <!-- 3. Tampermonkey -->
+      <div class="ext-item" onclick="sendIpc({ action: 'navigate', url: 'rustium://extensions' })">
+        <div class="ext-icon" style="background:#151515; color:#fff;">
+          <svg viewBox="0 0 24 24"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-9 14H7v-2h3v2zm0-4H7v-2h3v2zm0-4H7V7h3v2zm7 8h-5v-2h5v2zm0-4h-5v-2h5v2zm0-4h-5V7h5v2z" fill="currentColor"/></svg>
+          <div class="ext-badge">1</div>
+        </div>
+        <div class="ext-info">
+          <div class="ext-name">Tampermonkey</div>
+          <div class="ext-sub">Всегда может читать и изменять данные на этой странице</div>
+        </div>
+        <div class="ext-more-dots" title="Настройки">
+          <svg style="width:18px;height:18px;" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" fill="currentColor"/></svg>
+        </div>
+      </div>
+
+      <!-- 4. PreMiD -->
+      <div class="ext-item" onclick="sendIpc({ action: 'navigate', url: 'rustium://extensions' })">
+        <div class="ext-icon" style="background:linear-gradient(135deg, #7c4dff, #00b0ff); color:#fff;">
+          <svg viewBox="0 0 24 24"><path d="M10 8.64L15.27 12 10 15.36V8.64M8 5v14l11-7L8 5z" fill="currentColor"/></svg>
+        </div>
+        <div class="ext-info">
+          <div class="ext-name">PreMiD</div>
+          <div class="ext-sub">Всегда может читать и изменять данные на этой странице</div>
+        </div>
+        <div class="ext-more-dots" title="Настройки">
+          <svg style="width:18px;height:18px;" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" fill="currentColor"/></svg>
+        </div>
+      </div>
+
+      <!-- 5. Equicord Web -->
+      <div class="ext-item" onclick="sendIpc({ action: 'navigate', url: 'rustium://extensions' })">
+        <div class="ext-icon" style="background:#262a2d; color:#90a4ae;">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" fill="currentColor"/></svg>
+        </div>
+        <div class="ext-info">
+          <div class="ext-name">Equicord Web</div>
+          <div class="ext-sub">Не может читать и изменять данные на этой странице</div>
+        </div>
+        <div class="ext-more-dots" title="Настройки">
+          <svg style="width:18px;height:18px;" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" fill="currentColor"/></svg>
+        </div>
+      </div>
+
+      <!-- 6. YouTube Ad Auto-skipper -->
+      <div class="ext-item" onclick="sendIpc({ action: 'navigate', url: 'rustium://extensions' })">
+        <div class="ext-icon" style="background:#2e3338; color:#e0e0e0; font-size:11px; font-weight:700;">
+          ad▸▸
+        </div>
+        <div class="ext-info">
+          <div class="ext-name">YouTube Ad Auto-skipper</div>
+          <div class="ext-sub">Всегда может читать и изменять данные на этой странице</div>
+        </div>
+        <div class="ext-more-dots" title="Настройки">
+          <svg style="width:18px;height:18px;" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" fill="currentColor"/></svg>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:8px; padding-top:6px; border-top:1px solid rgba(255,255,255,0.06);">
+      <div class="tonal-btn" id="openExtPageBtn" style="width:100%; text-align:center; justify-content:center;">Управление расширениями</div>
+    </div>
+  </div>
+
+  <!-- 6. Application Menu Popover (Expanded, No Cutoff) -->
+  <div class="popover-card" id="appMenuPopover" style="right: 10px; min-width: 260px;">
+    <div class="menu-item" id="menuNewTab">
+      <div class="menu-item-icon">
+        <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" fill="currentColor"/></svg>
+      </div>
+      <span class="menu-item-title">Новая вкладка</span>
+      <span class="menu-item-shortcut">Ctrl+T</span>
+    </div>
+    <div class="menu-item" id="menuDownloads">
+      <div class="menu-item-icon">
+        <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="currentColor"/></svg>
+      </div>
+      <span class="menu-item-title">Загрузки</span>
+      <span class="menu-item-shortcut">Ctrl+J</span>
+    </div>
+    <div class="menu-item" id="menuBookmarks">
+      <div class="menu-item-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" fill="currentColor"/></svg>
+      </div>
+      <span class="menu-item-title">Закладки</span>
+      <span class="menu-item-shortcut">Ctrl+B</span>
+    </div>
+    <div class="menu-item" id="menuHistory">
+      <div class="menu-item-icon">
+        <svg viewBox="0 0 24 24"><path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z" fill="currentColor"/></svg>
+      </div>
+      <span class="menu-item-title">История</span>
+      <span class="menu-item-shortcut">Ctrl+H</span>
+    </div>
+    <div class="menu-item" id="menuExtensions">
+      <div class="menu-item-icon">
+        <svg viewBox="0 0 24 24"><path d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5a2.5 2.5 0 0 0-5 0V5H4c-1.1 0-1.99.9-1.99 2v3.8H3.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7 1.49 0 2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5a2.5 2.5 0 0 0 0-5z" fill="currentColor"/></svg>
+      </div>
+      <span class="menu-item-title">Расширения</span>
+    </div>
+    <div class="menu-item" id="menuPasswords">
+      <div class="menu-item-icon">
+        <svg viewBox="0 0 24 24"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2 2z" fill="currentColor"/></svg>
+      </div>
+      <span class="menu-item-title">Пароли</span>
+    </div>
+    <div class="menu-item" id="menuSettings">
+      <div class="menu-item-icon">
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" fill="currentColor"/></svg>
+      </div>
+      <span class="menu-item-title">Настройки</span>
+      <span class="menu-item-shortcut">Ctrl+,</span>
+    </div>
+    <div class="menu-item" id="menuDevtools">
+      <div class="menu-item-icon">
+        <svg viewBox="0 0 24 24"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z" fill="currentColor"/></svg>
+      </div>
+      <span class="menu-item-title">Инструменты разработчика</span>
+      <span class="menu-item-shortcut">F12</span>
+    </div>
+    <div class="menu-item" id="menuAbout">
+      <div class="menu-item-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" fill="currentColor"/></svg>
+      </div>
+      <span class="menu-item-title">О браузере Rustium 1.1.1</span>
+    </div>
+  </div>
+
+  <!-- JavaScript Client Logic -->
+  <script>
+    let currentTabs = [];
+    let activeTabId = "";
+    let currentUrl = "";
+    let settings = {};
+    let adblockTotal = 0;
+    let activePopover = null;
+    let isOmniboxFocused = false;
+    let darkModeEnabled = true;
+
+    function sendIpc(payload) {
+      if (window.ipc) {
+        window.ipc.postMessage(JSON.stringify(payload));
+      }
+    }
+
+    // Ripple effect helper for tactile MD3 feedback
+    function addRipple(e, el) {
+      const ripple = document.createElement("span");
+      ripple.className = "ripple";
+      const rect = el.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      ripple.style.width = ripple.style.height = `${size}px`;
+      ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
+      ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
+      el.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 400);
+    }
+
+    document.addEventListener("click", (e) => {
+      const clickable = e.target.closest(".nav-icon-btn, .action-chip, .brand-btn, .new-tab-btn, .tonal-btn, .menu-item");
+      if (clickable) addRipple(e, clickable);
+    });
+
+    // Popover Manager (Expands transparent area to full window height so menu is NEVER cut off!)
+    function openPopover(el) {
+      if (activePopover === el) {
+        closePopovers();
+        return;
+      }
+      closePopovers();
+      el.classList.add("show");
+      activePopover = el;
+      sendIpc({ action: "expand_chrome", height: window.innerHeight || 850 });
+    }
+
+    function closePopovers() {
+      if (activePopover) {
+        activePopover.classList.remove("show");
+        activePopover = null;
+        sendIpc({ action: "collapse_chrome" });
+      }
+    }
+
+    // Window Dragging
+    document.getElementById("tabStripSpacer").addEventListener("mousedown", (e) => {
+      if (e.button === 0) sendIpc({ action: "drag_window" });
+    });
+
+    // Window Controls
+    document.getElementById("winMinimizeBtn").onclick = () => sendIpc({ action: "minimize_window" });
+    document.getElementById("winMaximizeBtn").onclick = () => sendIpc({ action: "maximize_window" });
+    document.getElementById("winCloseBtn").onclick = () => sendIpc({ action: "close_window" });
+
+    // Helper: SVG Icons for tabs
+    function getTabFaviconSvg(url) {
+      if (!url) url = "";
+      if (url.startsWith("rustium://")) {
+        if (url.includes("passwords") || url.includes("logins")) {
+          return `<svg viewBox="0 0 24 24"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2 2z" fill="#79c99e"/></svg>`;
+        }
+        if (url.includes("downloads")) {
+          return `<svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="#a8c7fa"/></svg>`;
+        }
+        if (url.includes("bookmarks")) {
+          return `<svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" fill="#ffd043"/></svg>`;
+        }
+        if (url.includes("history")) {
+          return `<svg viewBox="0 0 24 24"><path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z" fill="#a8c7fa"/></svg>`;
+        }
+        if (url.includes("extensions")) {
+          return `<svg viewBox="0 0 24 24"><path d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5a2.5 2.5 0 0 0-5 0V5H4c-1.1 0-1.99.9-1.99 2v3.8H3.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7 1.49 0 2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5a2.5 2.5 0 0 0 0-5z" fill="#a8c7fa"/></svg>`;
+        }
+        if (url.includes("settings")) {
+          return `<svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" fill="#a8c7fa"/></svg>`;
+        }
+        return `<svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zm0 8.8L4.2 7 12 3.2 19.8 7 12 10.8zm0 2.2L4 8.5V17l8 5 8-5V8.5l-8 4.5z" fill="#a8c7fa"/></svg>`;
+      }
+      if (url.includes("youtube.com")) {
+        return `<svg viewBox="0 0 24 24"><path d="M21.58 7.19a2.5 2.5 0 0 0-1.76-1.77C18.26 5 12 5 12 5s-6.26 0-7.82.42c-.87.23-1.54.92-1.76 1.77C2 8.75 2 12 2 12s0 3.25.42 4.81c.23.86.9 1.54 1.76 1.77 1.56.42 7.82.42 7.82.42s6.26 0 7.82-.42a2.5 2.5 0 0 0 1.76-1.77C22 15.25 22 12 22 12s0-3.25-.42-4.81zM9.75 15.02V8.98L15 12l-5.25 3.02z" fill="#ff0000"/></svg>`;
+      }
+      if (url.includes("discord.com")) {
+        return `<svg viewBox="0 0 24 24"><path d="M19.27 5.33C17.94 4.71 16.5 4.26 15 4a.09.09 0 0 0-.07.03c-.18.33-.39.76-.53 1.09a16.09 16.09 0 0 0-4.8 0c-.14-.34-.35-.76-.54-1.09-.01-.02-.04-.03-.07-.03-1.5.26-2.93.71-4.27 1.33-.01 0-.02.01-.03.02-2.72 4.07-3.47 8.03-3.1 11.95 0 .02.01.04.03.05 1.8 1.32 3.53 2.12 5.24 2.65.03.01.06 0 .07-.02.4-.55.76-1.13 1.07-1.74.02-.04 0-.08-.04-.09-.57-.22-1.11-.48-1.64-.78-.04-.02-.04-.08-.01-.11.11-.08.22-.17.33-.25.02-.02.05-.02.07-.01 3.44 1.57 7.15 1.57 10.55 0 .02-.01.05-.01.07.01.11.09.22.17.33.26.04.03.04.08-.01.11-.52.31-1.07.56-1.64.78-.04.01-.05.06-.04.09.32.61.68 1.19 1.07 1.74.01.02.05.03.07.02 1.72-.53 3.45-1.33 5.25-2.65.02-.01.03-.03.03-.05.44-4.53-.73-8.46-3.1-11.95-.01-.01-.02-.02-.03-.02zM8.52 14.91c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12 0 1.17-.84 2.12-1.89 2.12zm6.97 0c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12 0 1.17-.83 2.12-1.89 2.12z" fill="#5865F2"/></svg>`;
+      }
+      if (url.includes("google.com")) {
+        return `<svg viewBox="0 0 24 24"><path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" fill="#4285F4"/></svg>`;
+      }
+      if (url.includes("duckduckgo.com")) {
+        return `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#DE5833"/><path d="M12 7c-2 0-3.5 1.5-3.5 3.5 0 1.5 1 2.5 2 3l-.5 2.5 2-1 2 1-.5-2.5c1-.5 2-1.5 2-3 0-2-1.5-3.5-3.5-3.5z" fill="#ffffff"/></svg>`;
+      }
+      return `<svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1a2 2 0 0 0 2 2zm6.9-2.54a2 2 0 0 0-1.9-1.39h-1v-3a1 1 0 0 0-1-1H8v-2h2a1 1 0 0 0 1-1V7h2a2 2 0 0 0 2-2v-.41a7.98 7.98 0 0 1 2.9 10.8z" fill="#a8c7fa"/></svg>`;
+    }
+
+    // Render Tabs
+    function renderTabs() {
+      const tabList = document.getElementById("tabList");
+      tabList.innerHTML = "";
+
+      currentTabs.forEach(tab => {
+        const item = document.createElement("div");
+        item.className = "tab-item" + (tab.id === activeTabId ? " active" : "") + (tab.is_pinned ? " pinned" : "");
+        item.onclick = (e) => {
+          if (!e.target.closest(".tab-btn")) {
+            sendIpc({ action: "switch_tab", tab_id: tab.id });
+          }
+        };
+
+        const icon = document.createElement("div");
+        icon.className = "tab-favicon";
+        icon.innerHTML = getTabFaviconSvg(tab.url);
+
+        const title = document.createElement("span");
+        title.className = "tab-title";
+        title.textContent = tab.title || "Новая вкладка";
+
+        const closeBtn = document.createElement("div");
+        closeBtn.className = "tab-btn tab-close-btn";
+        closeBtn.title = "Закрыть вкладку (Ctrl+W)";
+        closeBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/></svg>`;
+        closeBtn.onclick = (e) => {
+          e.stopPropagation();
+          sendIpc({ action: "close_tab", tab_id: tab.id });
+        };
+
+        item.appendChild(icon);
+        item.appendChild(title);
+        item.appendChild(closeBtn);
+        tabList.appendChild(item);
+      });
+    }
+
+    // Apply Themes
+    function applyTheme(themeName, seedColor, gradientName) {
+      if (gradientName) {
+        document.body.className = "grad-" + gradientName;
+      }
+      const root = document.documentElement;
+      if (themeName === "win11") {
+        root.style.setProperty("--md-surface-lowest", "#1c1c1c");
+        root.style.setProperty("--md-surface-low", "#202020");
+        root.style.setProperty("--md-surface", "#2c2c2c");
+        root.style.setProperty("--md-surface-high", "#383838");
+        root.style.setProperty("--md-surface-highest", "#444444");
+        root.style.setProperty("--md-on-surface", "#ffffff");
+        root.style.setProperty("--md-on-surface-variant", "#cccccc");
+        root.style.setProperty("--md-primary", "#60cdff");
+      } else if (themeName === "amoled") {
+        root.style.setProperty("--md-surface-lowest", "#000000");
+        root.style.setProperty("--md-surface-low", "#050505");
+        root.style.setProperty("--md-surface", "#0c0c0c");
+        root.style.setProperty("--md-surface-high", "#161616");
+        root.style.setProperty("--md-surface-highest", "#222222");
+        root.style.setProperty("--md-on-surface", "#ffffff");
+        root.style.setProperty("--md-on-surface-variant", "#a0a0a0");
+      } else if (themeName === "catppuccin") {
+        root.style.setProperty("--md-surface-lowest", "#11111b");
+        root.style.setProperty("--md-surface-low", "#181825");
+        root.style.setProperty("--md-surface", "#1e1e2e");
+        root.style.setProperty("--md-surface-high", "#313244");
+        root.style.setProperty("--md-surface-highest", "#45475a");
+        root.style.setProperty("--md-on-surface", "#cdd6f4");
+        root.style.setProperty("--md-on-surface-variant", "#a6adc8");
+      } else if (themeName === "nord") {
+        root.style.setProperty("--md-surface-lowest", "#242933");
+        root.style.setProperty("--md-surface-low", "#2e3440");
+        root.style.setProperty("--md-surface", "#3b4252");
+        root.style.setProperty("--md-surface-high", "#434c5e");
+        root.style.setProperty("--md-surface-highest", "#4c566a");
+        root.style.setProperty("--md-on-surface", "#eceff4");
+        root.style.setProperty("--md-on-surface-variant", "#d8dee9");
+      } else if (themeName === "md3_light") {
+        root.style.setProperty("--md-surface-lowest", "#ffffff");
+        root.style.setProperty("--md-surface-low", "#f6f8fa");
+        root.style.setProperty("--md-surface", "#edf0f4");
+        root.style.setProperty("--md-surface-high", "#e4e8ec");
+        root.style.setProperty("--md-surface-highest", "#dce1e7");
+        root.style.setProperty("--md-on-surface", "#1f1f1f");
+        root.style.setProperty("--md-on-surface-variant", "#444746");
+      } else {
+        root.style.setProperty("--md-surface-lowest", "#0e1215");
+        root.style.setProperty("--md-surface-low", "#151a1d");
+        root.style.setProperty("--md-surface", "#1b2125");
+        root.style.setProperty("--md-surface-high", "#242c30");
+        root.style.setProperty("--md-surface-highest", "#2e363c");
+        root.style.setProperty("--md-on-surface", "#e1e3e5");
+        root.style.setProperty("--md-on-surface-variant", "#c1c7ce");
+      }
+      if (seedColor) root.style.setProperty("--md-primary", seedColor);
+    }
+
+    // Omnibox Navigation Handler
+    const omniboxInput = document.getElementById("omniboxInput");
+    omniboxInput.addEventListener("focus", () => {
+      isOmniboxFocused = true;
+      omniboxInput.select();
+    });
+    omniboxInput.addEventListener("blur", () => {
+      isOmniboxFocused = false;
+    });
+    omniboxInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const val = omniboxInput.value.trim();
+        if (val) {
+          sendIpc({ action: "navigate", url: val });
+          omniboxInput.blur();
+        }
+      }
+    });
+
+    // Navigation and Toolbar Button Listeners
+    document.getElementById("brandLogoBtn").onclick = () => sendIpc({ action: "navigate", url: "rustium://newtab" });
+    document.getElementById("newTabBtn").onclick = () => sendIpc({ action: "create_tab" });
+    document.getElementById("backBtn").onclick = () => sendIpc({ action: "go_back" });
+    document.getElementById("forwardBtn").onclick = () => sendIpc({ action: "go_forward" });
+    document.getElementById("reloadBtn").onclick = () => sendIpc({ action: "reload" });
+    document.getElementById("homeBtn").onclick = () => sendIpc({ action: "navigate", url: "rustium://newtab" });
+
+    // Popover Toggles
+    document.getElementById("adblockBtn").onclick = (e) => {
+      e.stopPropagation();
+      openPopover(document.getElementById("adblockPopover"));
+    };
+    document.getElementById("secBadge").onclick = (e) => {
+      e.stopPropagation();
+      openPopover(document.getElementById("securityPopover"));
+    };
+    document.getElementById("darkModeBtn").onclick = (e) => {
+      e.stopPropagation();
+      openPopover(document.getElementById("darkModePopover"));
+    };
+    document.getElementById("downloadsBtn").onclick = (e) => {
+      e.stopPropagation();
+      openPopover(document.getElementById("downloadsPopover"));
+    };
+    document.getElementById("extensionsBtn").onclick = (e) => {
+      e.stopPropagation();
+      openPopover(document.getElementById("extensionsPopover"));
+    };
+    document.getElementById("appMenuBtn").onclick = (e) => {
+      e.stopPropagation();
+      openPopover(document.getElementById("appMenuPopover"));
+    };
+
+    // App Menu Items
+    document.getElementById("menuNewTab").onclick = () => { closePopovers(); sendIpc({ action: "create_tab" }); };
+    document.getElementById("menuDownloads").onclick = () => { closePopovers(); sendIpc({ action: "navigate", url: "rustium://downloads" }); };
+    document.getElementById("menuBookmarks").onclick = () => { closePopovers(); sendIpc({ action: "navigate", url: "rustium://bookmarks" }); };
+    document.getElementById("menuHistory").onclick = () => { closePopovers(); sendIpc({ action: "navigate", url: "rustium://history" }); };
+    document.getElementById("menuExtensions").onclick = () => { closePopovers(); sendIpc({ action: "navigate", url: "rustium://extensions" }); };
+    document.getElementById("menuPasswords").onclick = () => { closePopovers(); sendIpc({ action: "create_tab", url: "rustium://passwords", title: "Менеджер паролей" }); };
+    document.getElementById("menuSettings").onclick = () => { closePopovers(); sendIpc({ action: "open_settings_window" }); };
+    document.getElementById("menuDevtools").onclick = () => { closePopovers(); sendIpc({ action: "open_devtools" }); };
+    document.getElementById("menuAbout").onclick = () => { closePopovers(); sendIpc({ action: "navigate", url: "rustium://newtab" }); };
+
+    // Bookmark
+    document.getElementById("bookmarkBtn").onclick = () => {
+      const activeTab = currentTabs.find(t => t.id === activeTabId);
+      if (activeTab && !activeTab.url.startsWith("rustium://")) {
+        sendIpc({ action: "add_bookmark", title: activeTab.title, url: activeTab.url });
+        document.getElementById("bookmarkBtn").classList.add("active");
+        setTimeout(() => document.getElementById("bookmarkBtn").classList.remove("active"), 1200);
+      }
+    };
+
+    document.getElementById("openFullDlPageBtn").onclick = () => { closePopovers(); sendIpc({ action: "navigate", url: "rustium://downloads" }); };
+    document.getElementById("openDlFolderBtn").onclick = () => sendIpc({ action: "open_downloads_folder" });
+    document.getElementById("openExtPageBtn").onclick = () => { closePopovers(); sendIpc({ action: "navigate", url: "rustium://extensions" }); };
+
+    // Close on click outside
+    window.addEventListener("click", (e) => {
+      if (activePopover && !activePopover.contains(e.target) && !e.target.closest(".action-chip, .shield-badge-btn, .inner-action-btn, .security-badge")) {
+        closePopovers();
+      }
+    });
+
+    // Dark Mode Sliders & Toggles
+    const darkModeToggle = document.getElementById("darkModeSiteToggle");
+    const brightnessSlider = document.getElementById("brightnessSlider");
+    const contrastSlider = document.getElementById("contrastSlider");
+
+    function updateDarkMode() {
+      sendIpc({
+        action: "toggle_dark_mode",
+        domain: getDomain(currentUrl),
+        mode: darkModeEnabled ? "always_on" : "always_off",
+        brightness: parseInt(brightnessSlider.value, 10),
+        contrast: parseInt(contrastSlider.value, 10)
+      });
+    }
+
+    darkModeToggle.onclick = () => {
+      darkModeEnabled = !darkModeEnabled;
+      darkModeToggle.classList.toggle("checked", darkModeEnabled);
+      updateDarkMode();
+    };
+    brightnessSlider.oninput = () => {
+      document.getElementById("brightnessVal").textContent = brightnessSlider.value + "%";
+      updateDarkMode();
+    };
+    contrastSlider.oninput = () => {
+      document.getElementById("contrastVal").textContent = contrastSlider.value + "%";
+      updateDarkMode();
+    };
+
+    // Adblock Toggle
+    const adblockToggle = document.getElementById("adblockToggle");
+    adblockToggle.onclick = () => {
+      const isChecked = adblockToggle.classList.toggle("checked");
+      sendIpc({ action: "toggle_adblock", domain: getDomain(currentUrl), enabled: isChecked });
+    };
+
+    function getDomain(urlStr) {
+      try {
+        const u = new URL(urlStr);
+        return u.hostname;
+      } catch(e) {
+        return "";
+      }
+    }
+
+    // Firefox Shortcuts inside Top Bar
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "F12") {
+        e.preventDefault();
+        sendIpc({ action: "open_devtools" });
+      } else if (e.ctrlKey && e.key.toLowerCase() === "t") {
+        e.preventDefault();
+        sendIpc({ action: "create_tab" });
+      } else if (e.ctrlKey && e.key.toLowerCase() === "w") {
+        e.preventDefault();
+        if (activeTabId) sendIpc({ action: "close_tab", tab_id: activeTabId });
+      } else if (e.ctrlKey && e.key === "Tab") {
+        e.preventDefault();
+        if (currentTabs.length > 1) {
+          const idx = currentTabs.findIndex(t => t.id === activeTabId);
+          const nextIdx = e.shiftKey
+            ? (idx - 1 + currentTabs.length) % currentTabs.length
+            : (idx + 1) % currentTabs.length;
+          sendIpc({ action: "switch_tab", tab_id: currentTabs[nextIdx].id });
+        }
+      } else if (e.ctrlKey && e.key.toLowerCase() === "r" || e.key === "F5") {
+        e.preventDefault();
+        sendIpc({ action: "reload" });
+      } else if (e.ctrlKey && e.key.toLowerCase() === "l") {
+        e.preventDefault();
+        omniboxInput.focus();
+        omniboxInput.select();
+      } else if (e.ctrlKey && e.key.toLowerCase() === "h") {
+        e.preventDefault();
+        sendIpc({ action: "navigate", url: "rustium://history" });
+      } else if (e.ctrlKey && e.key.toLowerCase() === "j") {
+        e.preventDefault();
+        sendIpc({ action: "navigate", url: "rustium://downloads" });
+      } else if (e.ctrlKey && e.key.toLowerCase() === "b") {
+        e.preventDefault();
+        sendIpc({ action: "navigate", url: "rustium://bookmarks" });
+      }
+    });
+
+    // Receive state from Rust backend
+    window.__rustium_update_state__ = function(state) {
+      currentTabs = state.tabs || [];
+      activeTabId = state.active_tab_id || "";
+      settings = state.settings || {};
+      adblockTotal = state.adblock_total || 0;
+
+      applyTheme(settings.theme, settings.accent_color, settings.gradient);
+      renderTabs();
+
+      const activeTab = currentTabs.find(t => t.id === activeTabId);
+      if (activeTab) {
+        currentUrl = activeTab.url;
+        if (!isOmniboxFocused && document.activeElement !== omniboxInput) {
+          omniboxInput.value = currentUrl.startsWith("rustium://newtab") ? "" : currentUrl;
+        }
+
+        const pageBlocked = activeTab.blocked_count || 0;
+        document.getElementById("adblockCountBadge").textContent = pageBlocked;
+        document.getElementById("adblockPageCount").textContent = pageBlocked;
+        document.getElementById("adblockTotalCount").textContent = adblockTotal;
+        const dom = getDomain(currentUrl) || "Текущий сайт";
+        document.getElementById("adblockCurrentDomain").textContent = dom;
+        document.getElementById("secCurrentDomain").textContent = dom;
+
+        document.getElementById("backBtn").classList.toggle("disabled", !activeTab.can_go_back);
+        document.getElementById("forwardBtn").classList.toggle("disabled", !activeTab.can_go_forward);
+      }
+
+      // Render Downloads in Popover
+      if (state.downloads && state.downloads.length > 0) {
+        const dlList = document.getElementById("popoverDlList");
+        dlList.innerHTML = "";
+        let activeDlCount = 0;
+
+        state.downloads.forEach(dl => {
+          const isDownloading = dl.status === "Downloading";
+          const isCompleted = dl.status === "Completed";
+          if (isDownloading) activeDlCount++;
+
+          const item = document.createElement("div");
+          item.className = "dl-item";
+
+          let actionsHtml = "";
+          if (isDownloading) {
+            actionsHtml = `
+              <div class="dl-actions-row">
+                <span class="dl-action-btn dl-cancel-btn" onclick="sendIpc({ action: 'cancel_download', id: '${dl.id}' })">Отменить</span>
+                <span class="dl-action-btn" onclick="sendIpc({ action: 'pause_download', id: '${dl.id}' })">Пауза</span>
+              </div>
+            `;
+          } else if (isCompleted) {
+            actionsHtml = `
+              <div class="dl-actions-row">
+                <span class="dl-action-btn" onclick="sendIpc({ action: 'open_download_file', id: '${dl.id}' })">Открыть</span>
+                <span class="dl-action-btn" onclick="sendIpc({ action: 'show_in_folder', id: '${dl.id}' })">В папке</span>
+              </div>
+            `;
+          }
+
+          item.innerHTML = `
+            <div class="dl-row">
+              <span class="dl-name" title="${dl.filename}">${dl.filename}</span>
+              <span class="dl-speed">${isDownloading ? (dl.speed_bytes_per_sec / (1024 * 1024)).toFixed(1) + ' МБ/с' : (isCompleted ? 'Готово' : 'Отменено')}</span>
+            </div>
+            <div class="dl-progress-track">
+              <div class="dl-progress-bar" style="width: ${dl.progress_percent}%;"></div>
+            </div>
+            ${actionsHtml}
+          `;
+          dlList.appendChild(item);
+        });
+
+        const dlBadge = document.getElementById("dlCountBadge");
+        if (activeDlCount > 0) {
+          dlBadge.style.display = "inline-block";
+          dlBadge.textContent = activeDlCount;
+        } else {
+          dlBadge.style.display = "none";
+        }
+      }
+    };
+
+    window.addEventListener("DOMContentLoaded", () => {
+      sendIpc({ action: "get_state" });
+    });
+  </script>
+</body>
+</html>
