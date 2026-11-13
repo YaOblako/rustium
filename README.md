@@ -200,6 +200,13 @@ The resulting setup executable is generated at `dist\Rustium-Setup-v1.2.0.exe`.
 
 ---
 
+## Authors & Contributors
+
+- **YaOblako** ([@YaOblako](https://github.com/YaOblako)) — Project Initiator, Vision & Lead Maintainer
+- **Google Gemini** ([Antigravity AI Agent](https://deepmind.google/technologies/gemini/)) — Core Architecture, Systems Programming in Rust, Material Design 3 Engine & Co-Author
+
+---
+
 ## License
 
 Rustium is distributed under the terms of both the **MIT License** and the **Apache License (Version 2.0)**, at your option.

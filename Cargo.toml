@@ -2,7 +2,7 @@
 name = "rustium"
 version = "1.2.0"
 edition = "2021"
-authors = ["Rustium Core Team <rustium@example.com>"]
+authors = ["YaOblako <https://github.com/YaOblako>", "Google Gemini <gemini@google.com>"]
 description = "Современный и безопасный веб-браузер на Rust в стиле Material Design 3"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
