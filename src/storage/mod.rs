@@ -28,6 +28,12 @@ pub struct BrowserSettings {
     pub bg_opacity: u32, // 0..=100 (overlay tint opacity %, default 40)
     #[serde(default = "default_bg_blur")]
     pub bg_blur: u32, // 0..=30 (blur px, default 0)
+    #[serde(default = "default_frosted_glass_enabled")]
+    pub frosted_glass_enabled: bool,
+    #[serde(default = "default_frosted_glass_blur")]
+    pub frosted_glass_blur: u32,
+    #[serde(default)]
+    pub site_exclusions: Vec<String>,
 }
 
 fn default_first_run() -> bool {
@@ -58,6 +64,14 @@ fn default_bg_blur() -> u32 {
     0
 }
 
+fn default_frosted_glass_enabled() -> bool {
+    true
+}
+
+fn default_frosted_glass_blur() -> u32 {
+    16
+}
+
 impl Default for BrowserSettings {
     fn default() -> Self {
         Self {
@@ -77,6 +91,9 @@ impl Default for BrowserSettings {
             custom_bg_url: String::new(),
             bg_opacity: 40,
             bg_blur: 0,
+            frosted_glass_enabled: true,
+            frosted_glass_blur: 16,
+            site_exclusions: Vec::new(),
         }
     }
 }
@@ -253,6 +270,19 @@ impl StorageManager {
                             settings.bg_blur = v;
                         }
                     }
+                    "frosted_glass_enabled" => {
+                        settings.frosted_glass_enabled = item.1 == "1";
+                    }
+                    "frosted_glass_blur" => {
+                        if let Ok(v) = item.1.parse() {
+                            settings.frosted_glass_blur = v;
+                        }
+                    }
+                    "site_exclusions" => {
+                        if let Ok(list) = serde_json::from_str(&item.1) {
+                            settings.site_exclusions = list;
+                        }
+                    }
                     _ => {}
                 }
             }
@@ -304,6 +334,19 @@ impl StorageManager {
             ("custom_bg_url", settings.custom_bg_url.clone()),
             ("bg_opacity", settings.bg_opacity.to_string()),
             ("bg_blur", settings.bg_blur.to_string()),
+            (
+                "frosted_glass_enabled",
+                if settings.frosted_glass_enabled {
+                    "1".to_string()
+                } else {
+                    "0".to_string()
+                },
+            ),
+            ("frosted_glass_blur", settings.frosted_glass_blur.to_string()),
+            (
+                "site_exclusions",
+                serde_json::to_string(&settings.site_exclusions).unwrap_or_else(|_| "[]".to_string()),
+            ),
         ];
 
         for (k, v) in pairs {
@@ -569,5 +612,23 @@ impl StorageManager {
         }
 
         Ok(count)
+    }
+
+    pub fn add_site_exclusion(&self, domain: &str) -> Result<()> {
+        let mut settings = self.get_settings();
+        let dom = domain.trim().to_lowercase();
+        if !dom.is_empty() && !settings.site_exclusions.contains(&dom) {
+            settings.site_exclusions.push(dom);
+            self.save_settings(&settings)?;
+        }
+        Ok(())
+    }
+
+    pub fn remove_site_exclusion(&self, domain: &str) -> Result<()> {
+        let mut settings = self.get_settings();
+        let dom = domain.trim().to_lowercase();
+        settings.site_exclusions.retain(|d| d != &dom);
+        self.save_settings(&settings)?;
+        Ok(())
     }
 }

@@ -7,6 +7,7 @@ mod engine;
 mod extensions;
 mod storage;
 mod ui;
+pub mod updater;
 
 use adblock::AdblockManager;
 use dark_mode::DarkModeEngine;
@@ -17,6 +18,7 @@ use engine::{RUSTIUM_USER_AGENT, RUSTIUM_WINDOW_TITLE};
 use extensions::ExtensionManager;
 use storage::StorageManager;
 use ui::{get_internal_page, CHROME_HTML, PAGE_NEWTAB, PAGE_SCAM_WARNING};
+use updater::{UpdateInfo, UpdaterManager};
 
 use serde_json::json;
 use std::borrow::Cow;
@@ -80,6 +82,11 @@ pub enum AppEvent {
     DeleteLogin {
         id: i64,
     },
+    CheckForUpdates,
+    InstallUpdate {
+        download_url: String,
+    },
+    UpdateAvailable(UpdateInfo),
 }
 
 struct BrowserApp {
@@ -93,6 +100,8 @@ struct BrowserApp {
     ui_webview: WebView,
     content_webviews: HashMap<String, WebView>,
     event_proxy: EventLoopProxy<AppEvent>,
+    #[allow(dead_code)]
+    user_data_dir: std::path::PathBuf,
     window_width: u32,
     window_height: u32,
     current_chrome_height: u32,
@@ -112,6 +121,10 @@ impl BrowserApp {
         let window_width = size.width.max(800);
         let window_height = size.height.max(600);
         let current_chrome_height = CHROME_HEIGHT_COLLAPSED;
+
+        let local_app_data = std::env::var("LOCALAPPDATA").unwrap_or_else(|_| "C:\\ProgramData".to_string());
+        let user_data_dir = std::path::PathBuf::from(local_app_data).join("Rustium").join("WebView2Data");
+        let _ = std::fs::create_dir_all(&user_data_dir);
 
         let tabs = Arc::new(Mutex::new(TabManager::new()));
 
@@ -169,6 +182,7 @@ impl BrowserApp {
             ui_webview,
             content_webviews: HashMap::new(),
             event_proxy,
+            user_data_dir,
             window_width,
             window_height,
             current_chrome_height,
@@ -190,8 +204,8 @@ impl BrowserApp {
             return;
         }
 
-        let top_y = self.current_chrome_height as f64;
-        let content_h = (self.window_height.saturating_sub(self.current_chrome_height)).max(10) as f64;
+        let top_y = CHROME_HEIGHT_COLLAPSED as f64;
+        let content_h = (self.window_height.saturating_sub(CHROME_HEIGHT_COLLAPSED)).max(10) as f64;
         let bounds = Rect {
             position: LogicalPosition::new(0.0, top_y).into(),
             size: LogicalSize::new(self.window_width as f64, content_h).into(),
@@ -451,6 +465,34 @@ impl BrowserApp {
         for (id, wv) in &self.content_webviews {
             let is_active = id == &active_id;
             let _ = wv.set_visible(is_active);
+            #[cfg(target_os = "windows")]
+            {
+                use wry::WebViewExtWindows;
+                use windows_sys::Win32::UI::WindowsAndMessaging::{
+                    ShowWindow, SetWindowPos, HWND_TOP, SWP_NOMOVE, SWP_NOSIZE, SW_HIDE, SW_SHOW,
+                };
+                let hwnd = wv.hwnd().0 as isize;
+                if is_active {
+                    unsafe {
+                        ShowWindow(hwnd, SW_SHOW);
+                        SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+                    }
+                } else {
+                    unsafe {
+                        ShowWindow(hwnd, SW_HIDE);
+                    }
+                }
+            }
+        }
+
+        #[cfg(target_os = "windows")]
+        {
+            use wry::WebViewExtWindows;
+            use windows_sys::Win32::UI::WindowsAndMessaging::{SetWindowPos, HWND_TOP, SWP_NOMOVE, SWP_NOSIZE};
+            let ui_hwnd = self.ui_webview.hwnd().0 as isize;
+            unsafe {
+                SetWindowPos(ui_hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+            }
         }
     }
 
@@ -853,13 +895,47 @@ fn handle_ui_ipc(
             IpcMessageFromUi::GetState => {
                 let _ = event_proxy.send_event(AppEvent::SyncState);
             }
+            IpcMessageFromUi::CheckForUpdates => {
+                let _ = event_proxy.send_event(AppEvent::CheckForUpdates);
+            }
+            IpcMessageFromUi::InstallUpdate { download_url } => {
+                let _ = event_proxy.send_event(AppEvent::InstallUpdate { download_url });
+            }
+            IpcMessageFromUi::AddSiteExclusion { domain } => {
+                let _ = storage.add_site_exclusion(&domain);
+                let _ = event_proxy.send_event(AppEvent::SyncState);
+            }
+            IpcMessageFromUi::RemoveSiteExclusion { domain } => {
+                let _ = storage.remove_site_exclusion(&domain);
+                let _ = event_proxy.send_event(AppEvent::SyncState);
+            }
         }
     }
 }
 
 #[tokio::main]
 async fn main() {
-    println!("Запуск Rustium 1.1.1...");
+    println!("Запуск Rustium 1.2.0...");
+
+    #[cfg(target_os = "windows")]
+    {
+        // Fix crashes on AMD FX series (RendererCodeIntegrity errata) and older GPUs (RX 580)
+        std::env::set_var(
+            "WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS",
+            "--disable-features=RendererCodeIntegrity --no-default-browser-check --disable-gpu-process-crash-limit --ignore-gpu-blocklist --disable-direct-composition-video-overlays --enable-features=SharedArrayBuffer"
+        );
+
+        let local_app_data = std::env::var("LOCALAPPDATA").unwrap_or_else(|_| "C:\\ProgramData".to_string());
+        let user_data_dir = std::path::PathBuf::from(local_app_data).join("Rustium").join("WebView2Data");
+        let _ = std::fs::create_dir_all(&user_data_dir);
+        std::env::set_var("WEBVIEW2_USER_DATA_FOLDER", &user_data_dir);
+
+        use windows_sys::Win32::UI::Shell::SetCurrentProcessExplicitAppUserModelID;
+        let app_id: Vec<u16> = "Rustium.Browser.1.2.0\0".encode_utf16().collect();
+        unsafe {
+            SetCurrentProcessExplicitAppUserModelID(app_id.as_ptr());
+        }
+    }
 
     // 1. Initialize Subsystems
     let storage = Arc::new(StorageManager::new(None).expect("Ошибка инициализации базы данных SQLite"));
@@ -894,6 +970,28 @@ async fn main() {
         .build(&event_loop)
         .expect("Не удалось создать главное окно");
 
+    #[cfg(target_os = "windows")]
+    {
+        use tao::platform::windows::WindowExtWindows;
+        use windows_sys::Win32::UI::WindowsAndMessaging::{
+            SendMessageW, LoadImageW, WM_SETICON, ICON_BIG, ICON_SMALL, IMAGE_ICON, LR_DEFAULTCOLOR, LR_SHARED,
+        };
+        use windows_sys::Win32::System::LibraryLoader::GetModuleHandleW;
+
+        let hwnd = window.hwnd() as isize;
+        unsafe {
+            let hmodule = GetModuleHandleW(std::ptr::null());
+            let hicon_big = LoadImageW(hmodule, 1 as *const u16, IMAGE_ICON, 48, 48, LR_DEFAULTCOLOR | LR_SHARED);
+            let hicon_small = LoadImageW(hmodule, 1 as *const u16, IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR | LR_SHARED);
+            if hicon_big != 0 {
+                SendMessageW(hwnd, WM_SETICON, ICON_BIG as usize, hicon_big);
+            }
+            if hicon_small != 0 {
+                SendMessageW(hwnd, WM_SETICON, ICON_SMALL as usize, hicon_small);
+            }
+        }
+    }
+
     // 4. Create Browser Application State
     let mut browser = BrowserApp::new(
         window,
@@ -915,7 +1013,18 @@ async fn main() {
         }
     });
 
-    println!("Rustium готов к работе!");
+    // 6. Background Update Checker on startup
+    let proxy_for_updater = event_proxy.clone();
+    tokio::spawn(async move {
+        tokio::time::sleep(Duration::from_secs(3)).await;
+        if let Some(info) = UpdaterManager::check_for_updates("1.2.0").await {
+            if info.has_update {
+                let _ = proxy_for_updater.send_event(AppEvent::UpdateAvailable(info));
+            }
+        }
+    });
+
+    println!("Rustium 1.2.0 готов к работе!");
 
     // Helper for confirm exit dialog
     let can_close = |downloader: &DownloadManager| -> bool {
@@ -924,7 +1033,7 @@ async fn main() {
             {
                 use windows_sys::Win32::UI::WindowsAndMessaging::{MessageBoxW, MB_ICONWARNING, MB_YESNO, IDYES};
                 let text: Vec<u16> = "В браузере выполняются активные загрузки файлов.\nВы уверены, что хотите прервать загрузки и закрыть Rustium?\0".encode_utf16().collect();
-                let caption: Vec<u16> = "Rustium 1.1.1\0".encode_utf16().collect();
+                let caption: Vec<u16> = "Rustium 1.2.0\0".encode_utf16().collect();
                 let res = unsafe {
                     MessageBoxW(0 as _, text.as_ptr(), caption.as_ptr(), MB_YESNO | MB_ICONWARNING)
                 };
@@ -1088,6 +1197,26 @@ async fn main() {
                     let _ = browser.storage.delete_login(id);
                     browser.sync_state_to_ui();
                 }
+                AppEvent::CheckForUpdates => {
+                    let proxy = browser.event_proxy.clone();
+                    tokio::spawn(async move {
+                        if let Some(info) = UpdaterManager::check_for_updates("1.2.0").await {
+                            let _ = proxy.send_event(AppEvent::UpdateAvailable(info));
+                        }
+                    });
+                }
+                AppEvent::InstallUpdate { download_url } => {
+                    tokio::spawn(async move {
+                        let _ = UpdaterManager::download_and_run_installer(&download_url).await;
+                    });
+                }
+                AppEvent::UpdateAvailable(info) => {
+                    let script = format!(
+                        "window.__rustium_update_available__ && window.__rustium_update_available__({});",
+                        json!(info)
+                    );
+                    let _ = browser.ui_webview.evaluate_script(&script);
+                }
             },
 
             _ => {}
@@ -1102,11 +1231,11 @@ fn show_webview2_missing_dialog(err: &str) {
         use windows_sys::Win32::UI::Shell::ShellExecuteW;
         use std::ptr::null_mut;
 
-        let title: Vec<u16> = "Rustium 1.1.1 — Ошибка запуска\0".encode_utf16().collect();
+        let title: Vec<u16> = "Rustium 1.2.0 — Ошибка запуска\0".encode_utf16().collect();
         let message = format!(
             "Для запуска браузера Rustium на вашем компьютере требуется компонент Microsoft Edge WebView2 Runtime.\n\n\
             Детали: {}\n\n\
-            Нажмите «ОК», чтобы скачать официальный установщик WebView2 с сайта Microsoft, или установите Rustium через файл установщика Rustium-Setup-v1.1.1.exe (в него уже включена автоматическая установка всех нужных компонентов).",
+            Нажмите «ОК», чтобы скачать официальный установщик WebView2 с сайта Microsoft, или установите Rustium через файл установщика Rustium-Setup-v1.2.0.exe (в него уже включена автоматическая установка всех нужных компонентов).",
             err
         );
         let msg_w: Vec<u16> = message.encode_utf16().chain(std::iter::once(0)).collect();

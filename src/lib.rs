@@ -5,3 +5,4 @@ pub mod engine;
 pub mod extensions;
 pub mod storage;
 pub mod ui;
+pub mod updater;

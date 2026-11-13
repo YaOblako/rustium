@@ -121,6 +121,18 @@ pub enum IpcMessageFromUi {
 
     #[serde(rename = "get_state")]
     GetState,
+
+    #[serde(rename = "check_for_updates")]
+    CheckForUpdates,
+
+    #[serde(rename = "install_update")]
+    InstallUpdate { download_url: String },
+
+    #[serde(rename = "add_site_exclusion")]
+    AddSiteExclusion { domain: String },
+
+    #[serde(rename = "remove_site_exclusion")]
+    RemoveSiteExclusion { domain: String },
 }
 
 pub fn resolve_user_input_to_url(input: &str, search_engine: &str) -> String {

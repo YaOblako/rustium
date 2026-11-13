@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Rustium 1.1.1 Chrome</title>
+  <title>Rustium 1.2.0 Chrome</title>
   <style>
     /* -------------------------------------------------------------
        Google Chrome MD3 & Firefox Proton Tab System
@@ -104,6 +104,33 @@
     }
     body.grad-none .tab-strip {
       background: var(--md-surface-low);
+    }
+
+    /* Frosted Glass (Mica / Acrylic) Translucency and Tab Blur */
+    body.frosted-glass .tab-strip {
+      background: rgba(21, 26, 29, 0.72) !important;
+      backdrop-filter: blur(var(--frosted-blur, 16px)) saturate(150%) !important;
+      -webkit-backdrop-filter: blur(var(--frosted-blur, 16px)) saturate(150%) !important;
+    }
+    body.frosted-glass .nav-bar {
+      background: rgba(27, 33, 37, 0.78) !important;
+      backdrop-filter: blur(var(--frosted-blur, 16px)) saturate(150%) !important;
+      -webkit-backdrop-filter: blur(var(--frosted-blur, 16px)) saturate(150%) !important;
+    }
+    body.frosted-glass .tab-item {
+      background: rgba(30, 36, 41, 0.45);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    body.frosted-glass .tab-item:hover {
+      background: rgba(40, 48, 55, 0.65);
+    }
+    body.frosted-glass .tab-item.active {
+      background: rgba(46, 54, 60, 0.85);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    }
+    body.frosted-glass .omnibox-container {
+      background: rgba(20, 25, 29, 0.85) !important;
     }
 
     /* Brand Logo Button */
@@ -507,6 +534,37 @@
       font-weight: 700;
       padding: 1px 4px;
       border-radius: var(--radius-pill);
+    }
+
+    .update-banner-btn {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      padding: 0 10px;
+      height: 28px;
+      border-radius: var(--radius-pill);
+      background: linear-gradient(135deg, #00497d, #0066ad);
+      color: #d3e3fd;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      animation: updatePulse 2s infinite ease-in-out;
+      transition: filter 0.15s ease, transform 0.1s ease;
+      flex-shrink: 0;
+    }
+    @keyframes updatePulse {
+      0%, 100% { filter: drop-shadow(0 0 2px rgba(168, 199, 250, 0.4)); }
+      50% { filter: drop-shadow(0 0 8px rgba(168, 199, 250, 0.8)); }
+    }
+    .update-banner-btn svg {
+      width: 14px;
+      height: 14px;
+      display: block;
+      fill: currentColor;
+    }
+    .update-banner-btn:hover {
+      filter: brightness(1.2);
+      transform: scale(1.03);
     }
 
     /* -------------------------------------------------------------
@@ -960,6 +1018,12 @@
 
     <!-- Right Toolbar Actions -->
     <div class="toolbar-actions">
+      <!-- Update Banner Notification (GitHub Release Auto Updater) -->
+      <div class="update-banner-btn" id="updateBannerBtn" title="Доступна новая версия Rustium" onclick="triggerUpdateInstall()">
+        <svg viewBox="0 0 24 24"><path d="M12 2v6h2V4h8v16H4V4h8V2H2v20h20V2H12zm-1 9V6h2v5h3l-4 4-4-4h3z"/></svg>
+        <span id="updateBannerText">Обновить</span>
+      </div>
+
       <!-- Downloads Button -->
       <div class="action-chip" id="downloadsBtn" title="Загрузки (Ctrl+J)">
         <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="currentColor"/></svg>
@@ -977,6 +1041,9 @@
       </div>
     </div>
   </div>
+
+  <!-- Transparent backdrop overlay for open popovers to prevent black screen / occlusion -->
+  <div id="popoverBackdrop" style="display:none; position:fixed; top:86px; left:0; width:100vw; height:calc(100vh - 86px); z-index:900;" onclick="closePopovers()"></div>
 
   <!-- -------------------------------------------------------------
        Popovers
@@ -1241,7 +1308,7 @@
       <div class="menu-item-icon">
         <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" fill="currentColor"/></svg>
       </div>
-      <span class="menu-item-title">О браузере Rustium 1.1.1</span>
+      <span class="menu-item-title">О браузере Rustium 1.2.0</span>
     </div>
   </div>
 
@@ -1289,14 +1356,40 @@
       closePopovers();
       el.classList.add("show");
       activePopover = el;
+      const bd = document.getElementById("popoverBackdrop");
+      if (bd) bd.style.display = "block";
       sendIpc({ action: "expand_chrome", height: window.innerHeight || 850 });
     }
 
     function closePopovers() {
+      const bd = document.getElementById("popoverBackdrop");
+      if (bd) bd.style.display = "none";
       if (activePopover) {
         activePopover.classList.remove("show");
         activePopover = null;
-        sendIpc({ action: "collapse_chrome" });
+      }
+      sendIpc({ action: "collapse_chrome" });
+    }
+
+    let latestUpdateInfo = null;
+    window.__rustium_update_available__ = function(info) {
+      if (info && info.has_update) {
+        latestUpdateInfo = info;
+        const btn = document.getElementById("updateBannerBtn");
+        if (btn) {
+          btn.style.display = "inline-flex";
+          document.getElementById("updateBannerText").textContent = `v${info.latest_version}`;
+        }
+      }
+    };
+
+    function triggerUpdateInstall() {
+      if (latestUpdateInfo && latestUpdateInfo.download_url) {
+        const btn = document.getElementById("updateBannerBtn");
+        if (btn) {
+          btn.innerHTML = `<span style="font-size:10px;">Загрузка...</span>`;
+        }
+        sendIpc({ action: "install_update", download_url: latestUpdateInfo.download_url });
       }
     }
 
@@ -1624,6 +1717,12 @@
       adblockTotal = state.adblock_total || 0;
 
       applyTheme(settings.theme, settings.accent_color, settings.gradient);
+      if (settings && settings.frosted_glass_enabled) {
+        document.body.classList.add("frosted-glass");
+        document.documentElement.style.setProperty("--frosted-blur", (settings.frosted_glass_blur || 16) + "px");
+      } else {
+        document.body.classList.remove("frosted-glass");
+      }
       renderTabs();
 
       const activeTab = currentTabs.find(t => t.id === activeTabId);

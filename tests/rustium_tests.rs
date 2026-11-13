@@ -68,6 +68,9 @@ fn test_storage_manager() {
     s.gif_preset = "cyberpunk".to_string();
     s.bg_opacity = 50;
     s.bg_blur = 10;
+    s.frosted_glass_enabled = true;
+    s.frosted_glass_blur = 20;
+    s.site_exclusions = vec!["example.com".to_string()];
     storage.save_settings(&s).expect("Настройки должны сохраняться");
 
     let loaded_s = storage.get_settings();
@@ -78,6 +81,9 @@ fn test_storage_manager() {
     assert_eq!(loaded_s.gif_preset, "cyberpunk");
     assert_eq!(loaded_s.bg_opacity, 50);
     assert_eq!(loaded_s.bg_blur, 10);
+    assert!(loaded_s.frosted_glass_enabled);
+    assert_eq!(loaded_s.frosted_glass_blur, 20);
+    assert_eq!(loaded_s.site_exclusions, vec!["example.com".to_string()]);
 
     // 2. Bookmarks
     storage.add_bookmark("Хабр", "https://habr.com").expect("Закладка должна добавляться");

@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Новая вкладка - Rustium</title>
+  <title>Новая вкладка - Rustium 1.2.0</title>
   <style>
     /* -------------------------------------------------------------
        Material Design 3 - Strictly Zero Borders / Strokes
@@ -820,6 +820,7 @@
 
   <!-- Animated Wallpaper & Translucent Layer (GIF / Video / Custom Wallpaper) -->
   <div class="bg-media-container" id="bgMediaContainer">
+    <canvas id="bgProceduralCanvas" style="position:absolute; top:0; left:0; width:100%; height:100%; display:none;"></canvas>
     <div class="bg-media-layer" id="bgMediaLayer"></div>
     <div class="bg-overlay-tint" id="bgOverlayTint"></div>
   </div>
@@ -1129,23 +1130,23 @@
         
         <div class="gif-presets-grid">
           <div class="gif-item-card" data-gif="cyberpunk" onclick="selectGifPreset('cyberpunk')">
-            <div class="gif-thumb" style="background-image: url('https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdW5oZnNmd3lyeXh3aGJrcmVmd2tzdTV2dXZ5bWdrOWFjcXR5eGVjeCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/26tn33aiTi1jklsBQ/giphy.gif');"></div>
+            <div class="gif-thumb" style="background: radial-gradient(circle at 30% 30%, #ff007f, #05051a); box-shadow: inset 0 0 10px #00ffff; display:flex; align-items:center; justify-content:center; color:#00ffff; font-size:11px; font-weight:700;">CYBER</div>
             <div class="gif-meta">
               <div class="gif-name">Киберпанк</div>
-              <div class="gif-desc">Неоновый дождь</div>
+              <div class="gif-desc">Неоновая сетка и дождь</div>
             </div>
           </div>
 
           <div class="gif-item-card" data-gif="nebula" onclick="selectGifPreset('nebula')">
-            <div class="gif-thumb" style="background-image: url('https://media.giphy.com/media/3o7bu3XilJ5BOiSGic/giphy.gif');"></div>
+            <div class="gif-thumb" style="background: radial-gradient(circle at 40% 40%, #7b2cbf, #03071e); box-shadow: inset 0 0 10px #3a0ca3; display:flex; align-items:center; justify-content:center; color:#a8c7fa; font-size:11px; font-weight:700;">WARP</div>
             <div class="gif-meta">
               <div class="gif-name">Космос</div>
-              <div class="gif-desc">Звёздная пыль</div>
+              <div class="gif-desc">3D звёздное поле</div>
             </div>
           </div>
 
           <div class="gif-item-card" data-gif="retro_sunset" onclick="selectGifPreset('retro_sunset')">
-            <div class="gif-thumb" style="background-image: url('https://media.giphy.com/media/xT9IgzoKnwFNmISR8I/giphy.gif');"></div>
+            <div class="gif-thumb" style="background: linear-gradient(180deg, #ff5e36 0%, #7c2d58 55%, #180928 100%); display:flex; align-items:center; justify-content:center; color:#ffdd59; font-size:11px; font-weight:700;">80s SUN</div>
             <div class="gif-meta">
               <div class="gif-name">Ретро-вейв</div>
               <div class="gif-desc">Синтвейв закат</div>
@@ -1153,23 +1154,23 @@
           </div>
 
           <div class="gif-item-card" data-gif="rain_window" onclick="selectGifPreset('rain_window')">
-            <div class="gif-thumb" style="background-image: url('https://media.giphy.com/media/t7Qb8655Z1VMA/giphy.gif');"></div>
+            <div class="gif-thumb" style="background: linear-gradient(135deg, #1b263b, #0d1b2a); box-shadow: inset 0 0 12px #415a77; display:flex; align-items:center; justify-content:center; color:#88c0d0; font-size:11px; font-weight:700;">RAIN</div>
             <div class="gif-meta">
               <div class="gif-name">Дождь</div>
-              <div class="gif-desc">Капли на окне</div>
+              <div class="gif-desc">Капли за стеклом</div>
             </div>
           </div>
 
-          <div class="gif-item-card" data-gif="lofi_room" onclick="selectGifPreset('lofi_room')">
-            <div class="gif-thumb" style="background-image: url('https://media.giphy.com/media/l4pT0NtPSMV3PW6Bi/giphy.gif');"></div>
+          <div class="gif-item-card" data-gif="matrix" onclick="selectGifPreset('matrix')">
+            <div class="gif-thumb" style="background: radial-gradient(circle at 50% 50%, #00ff66, #001100); box-shadow: inset 0 0 12px #00ff66; display:flex; align-items:center; justify-content:center; color:#00ff66; font-size:11px; font-weight:700;">MATRIX</div>
             <div class="gif-meta">
-              <div class="gif-name">Lo-Fi Чилл</div>
-              <div class="gif-desc">Ночной город</div>
+              <div class="gif-name">Матрица</div>
+              <div class="gif-desc">Цифровой поток кода</div>
             </div>
           </div>
 
           <div class="gif-item-card" data-gif="minimal_waves" onclick="selectGifPreset('minimal_waves')">
-            <div class="gif-thumb" style="background-image: url('https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif');"></div>
+            <div class="gif-thumb" style="background: radial-gradient(circle at 30% 70%, #00b4d8, #03045e); display:flex; align-items:center; justify-content:center; color:#90e0ef; font-size:11px; font-weight:700;">WAVES</div>
             <div class="gif-meta">
               <div class="gif-name">Тёмные волны</div>
               <div class="gif-desc">Плавный поток</div>
@@ -1203,6 +1204,14 @@
             <span class="control-row-val" id="bgBlurVal">0px</span>
           </div>
           <input type="range" class="md3-slider" id="sliderBgBlur" min="0" max="25" value="0" oninput="updateBgBlur(this.value)">
+        </div>
+
+        <div class="control-row">
+          <div class="control-row-header">
+            <span>Эффект матового стекла вкладок (Frosted Glass / Mica)</span>
+            <span class="control-row-val" id="frostedBlurVal">16px</span>
+          </div>
+          <input type="range" class="md3-slider" id="sliderFrostedBlur" min="4" max="40" value="16" oninput="updateFrostedBlur(this.value)">
         </div>
       </div>
     </div>
@@ -1295,33 +1304,303 @@
       document.getElementById("modalViewGifs").style.display = tabKey === "gifs" ? "flex" : "none";
     }
 
+    // Procedural 60 FPS HTML5 Canvas Wallpapers (100% offline, zero network dependency)
+    const pCanvas = document.getElementById("bgProceduralCanvas");
+    let pCtx = pCanvas ? pCanvas.getContext("2d") : null;
+    let pAnimId = null;
+    let currentCanvasPreset = "";
+
+    function resizeProceduralCanvas() {
+      if (!pCanvas) return;
+      pCanvas.width = window.innerWidth;
+      pCanvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resizeProceduralCanvas);
+    resizeProceduralCanvas();
+
+    // 1. Cyberpunk Neon Grid & Laser Rain
+    let cyberRain = Array.from({ length: 65 }, () => ({
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      len: 16 + Math.random() * 26,
+      speed: 6 + Math.random() * 8,
+      color: Math.random() > 0.5 ? "#00ffff" : "#ff007f"
+    }));
+    let cyberGridY = 0;
+
+    function renderCyberpunk() {
+      if (!pCtx) return;
+      pCtx.fillStyle = "#070612";
+      pCtx.fillRect(0, 0, pCanvas.width, pCanvas.height);
+
+      const horizon = pCanvas.height * 0.54;
+      const grad = pCtx.createLinearGradient(0, 0, 0, horizon);
+      grad.addColorStop(0, "#080614");
+      grad.addColorStop(1, "#260b38");
+      pCtx.fillStyle = grad;
+      pCtx.fillRect(0, 0, pCanvas.width, horizon);
+
+      const sunGrad = pCtx.createRadialGradient(pCanvas.width / 2, horizon, 20, pCanvas.width / 2, horizon, 180);
+      sunGrad.addColorStop(0, "#ff007f");
+      sunGrad.addColorStop(0.5, "#7928ca");
+      sunGrad.addColorStop(1, "transparent");
+      pCtx.fillStyle = sunGrad;
+      pCtx.beginPath();
+      pCtx.arc(pCanvas.width / 2, horizon, 180, Math.PI, 0, false);
+      pCtx.fill();
+
+      // Floor
+      pCtx.fillStyle = "#05040a";
+      pCtx.fillRect(0, horizon, pCanvas.width, pCanvas.height - horizon);
+
+      pCtx.strokeStyle = "rgba(0, 255, 255, 0.28)";
+      pCtx.lineWidth = 1.2;
+      cyberGridY = (cyberGridY + 1.2) % 36;
+      for (let y = horizon + cyberGridY; y < pCanvas.height; y += Math.pow((y - horizon + 10) / 13, 1.35)) {
+        pCtx.beginPath();
+        pCtx.moveTo(0, y);
+        pCtx.lineTo(pCanvas.width, y);
+        pCtx.stroke();
+      }
+      for (let x = -pCanvas.width; x < pCanvas.width * 2; x += 90) {
+        pCtx.beginPath();
+        pCtx.moveTo(pCanvas.width / 2, horizon);
+        pCtx.lineTo(x, pCanvas.height);
+        pCtx.stroke();
+      }
+
+      cyberRain.forEach(d => {
+        pCtx.strokeStyle = d.color;
+        pCtx.lineWidth = 1.6;
+        pCtx.beginPath();
+        pCtx.moveTo(d.x, d.y);
+        pCtx.lineTo(d.x - 1, d.y + d.len);
+        pCtx.stroke();
+        d.y += d.speed;
+        if (d.y > pCanvas.height) {
+          d.y = -30;
+          d.x = Math.random() * pCanvas.width;
+        }
+      });
+    }
+
+    // 2. 3D Warp Starfield Nebula
+    let warpStars = Array.from({ length: 220 }, () => ({
+      x: (Math.random() - 0.5) * window.innerWidth * 2,
+      y: (Math.random() - 0.5) * window.innerHeight * 2,
+      z: Math.random() * window.innerWidth
+    }));
+
+    function renderNebula() {
+      if (!pCtx) return;
+      pCtx.fillStyle = "#050711";
+      pCtx.fillRect(0, 0, pCanvas.width, pCanvas.height);
+
+      const nGrad = pCtx.createRadialGradient(pCanvas.width * 0.4, pCanvas.height * 0.45, 60, pCanvas.width * 0.5, pCanvas.height * 0.5, pCanvas.width * 0.65);
+      nGrad.addColorStop(0, "rgba(90, 25, 140, 0.38)");
+      nGrad.addColorStop(0.45, "rgba(25, 45, 100, 0.25)");
+      nGrad.addColorStop(1, "transparent");
+      pCtx.fillStyle = nGrad;
+      pCtx.fillRect(0, 0, pCanvas.width, pCanvas.height);
+
+      const cx = pCanvas.width / 2;
+      const cy = pCanvas.height / 2;
+      warpStars.forEach(s => {
+        s.z -= 3.5;
+        if (s.z <= 0) {
+          s.z = pCanvas.width;
+          s.x = (Math.random() - 0.5) * pCanvas.width * 2;
+          s.y = (Math.random() - 0.5) * pCanvas.height * 2;
+        }
+        const k = 260 / s.z;
+        const px = s.x * k + cx;
+        const py = s.y * k + cy;
+        if (px >= 0 && px <= pCanvas.width && py >= 0 && py <= pCanvas.height) {
+          const sz = Math.max(0.6, (1 - s.z / pCanvas.width) * 3.2);
+          const a = Math.min(1, (1 - s.z / pCanvas.width) * 1.6);
+          pCtx.fillStyle = `rgba(215, 230, 255, ${a})`;
+          pCtx.beginPath();
+          pCtx.arc(px, py, sz, 0, Math.PI * 2);
+          pCtx.fill();
+        }
+      });
+    }
+
+    // 3. Retro Sunset Synthwave
+    function renderRetroSunset() {
+      if (!pCtx) return;
+      pCtx.fillStyle = "#0d0918";
+      pCtx.fillRect(0, 0, pCanvas.width, pCanvas.height);
+
+      const horizon = pCanvas.height * 0.58;
+      const sGrad = pCtx.createLinearGradient(0, 0, 0, horizon);
+      sGrad.addColorStop(0, "#19082c");
+      sGrad.addColorStop(0.6, "#581845");
+      sGrad.addColorStop(1, "#c70039");
+      pCtx.fillStyle = sGrad;
+      pCtx.fillRect(0, 0, pCanvas.width, horizon);
+
+      const sunR = 85;
+      const sunX = pCanvas.width / 2;
+      const sunY = horizon - 20;
+      for (let r = 0; r < sunR; r += 7) {
+        pCtx.fillStyle = `rgb(255, ${Math.min(240, 70 + r * 2.2)}, 0)`;
+        pCtx.fillRect(sunX - sunR, sunY - sunR + r * 2, sunR * 2, 4);
+      }
+
+      pCtx.fillStyle = "#0a0512";
+      pCtx.fillRect(0, horizon, pCanvas.width, pCanvas.height - horizon);
+      pCtx.strokeStyle = "rgba(255, 0, 128, 0.35)";
+      pCtx.lineWidth = 1.3;
+      for (let y = horizon; y < pCanvas.height; y += Math.pow((y - horizon + 10) / 14, 1.35)) {
+        pCtx.beginPath();
+        pCtx.moveTo(0, y);
+        pCtx.lineTo(pCanvas.width, y);
+        pCtx.stroke();
+      }
+      for (let x = -pCanvas.width; x < pCanvas.width * 2; x += 80) {
+        pCtx.beginPath();
+        pCtx.moveTo(pCanvas.width / 2, horizon);
+        pCtx.lineTo(x, pCanvas.height);
+        pCtx.stroke();
+      }
+    }
+
+    // 4. Rain Window Glass
+    let rainDropsWindow = Array.from({ length: 90 }, () => ({
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      r: 1.5 + Math.random() * 3.5,
+      speed: 0.8 + Math.random() * 2
+    }));
+
+    function renderRain() {
+      if (!pCtx) return;
+      pCtx.fillStyle = "#0d141b";
+      pCtx.fillRect(0, 0, pCanvas.width, pCanvas.height);
+
+      pCtx.fillStyle = "rgba(168, 199, 250, 0.4)";
+      rainDropsWindow.forEach(d => {
+        pCtx.beginPath();
+        pCtx.ellipse(d.x, d.y, d.r, d.r * 1.6, 0, 0, Math.PI * 2);
+        pCtx.fill();
+        d.y += d.speed;
+        if (d.y > pCanvas.height) {
+          d.y = -10;
+          d.x = Math.random() * pCanvas.width;
+        }
+      });
+    }
+
+    // 5. Matrix Digital Code Rain
+    const matChars = "0123456789ABCDEFRASTIUM01";
+    let matCols = Math.max(20, Math.floor(window.innerWidth / 20));
+    let matY = Array(matCols).fill(0);
+
+    function renderMatrix() {
+      if (!pCtx) return;
+      pCtx.fillStyle = "rgba(4, 10, 6, 0.16)";
+      pCtx.fillRect(0, 0, pCanvas.width, pCanvas.height);
+
+      pCtx.fillStyle = "#00ff66";
+      pCtx.font = "14px monospace";
+      for (let i = 0; i < matCols; i++) {
+        const text = matChars[Math.floor(Math.random() * matChars.length)];
+        pCtx.fillText(text, i * 20, matY[i] * 20);
+        if (matY[i] * 20 > pCanvas.height && Math.random() > 0.975) {
+          matY[i] = 0;
+        }
+        matY[i]++;
+      }
+    }
+
+    // 6. Minimal Harmonic Waves
+    let waveStep = 0;
+    function renderWaves() {
+      if (!pCtx) return;
+      pCtx.fillStyle = "#0a0f16";
+      pCtx.fillRect(0, 0, pCanvas.width, pCanvas.height);
+
+      waveStep += 0.02;
+      for (let i = 0; i < 4; i++) {
+        pCtx.beginPath();
+        pCtx.moveTo(0, pCanvas.height);
+        for (let x = 0; x < pCanvas.width; x += 15) {
+          const y = pCanvas.height * 0.6 + Math.sin(x * 0.004 + waveStep + i * 0.8) * 60 + Math.cos(x * 0.002 - waveStep * 0.5) * 40;
+          pCtx.lineTo(x, y);
+        }
+        pCtx.lineTo(pCanvas.width, pCanvas.height);
+        pCtx.closePath();
+        const a = 0.08 + i * 0.04;
+        pCtx.fillStyle = `rgba(${20 + i * 20}, ${70 + i * 30}, ${140 + i * 25}, ${a})`;
+        pCtx.fill();
+      }
+    }
+
+    function startProceduralAnimation(preset) {
+      if (pAnimId) cancelAnimationFrame(pAnimId);
+      currentCanvasPreset = preset || "cyberpunk";
+      if (!pCanvas) return;
+      pCanvas.style.display = "block";
+
+      function animLoop() {
+        if (currentCanvasPreset === "cyberpunk") renderCyberpunk();
+        else if (currentCanvasPreset === "nebula") renderNebula();
+        else if (currentCanvasPreset === "retro_sunset") renderRetroSunset();
+        else if (currentCanvasPreset === "rain_window") renderRain();
+        else if (currentCanvasPreset === "matrix") renderMatrix();
+        else if (currentCanvasPreset === "minimal_waves") renderWaves();
+        else renderCyberpunk();
+        pAnimId = requestAnimationFrame(animLoop);
+      }
+      animLoop();
+    }
+
+    function stopProceduralAnimation() {
+      if (pAnimId) {
+        cancelAnimationFrame(pAnimId);
+        pAnimId = null;
+      }
+      if (pCanvas) pCanvas.style.display = "none";
+    }
+
     // Wallpaper & Background visual application
     function applyWallpaperVisual() {
       const bgContainer = document.getElementById("bgMediaContainer");
       const bgLayer = document.getElementById("bgMediaLayer");
       const bgTint = document.getElementById("bgOverlayTint");
       
-      if (currentSettings.bg_type === "gif" || currentSettings.bg_type === "custom") {
+      if (currentSettings.bg_type === "gif") {
         bgContainer.classList.add("active");
         document.body.classList.add("has-gif-bg");
         document.body.className = "has-gif-bg" + (currentSettings.theme === "win11" ? " theme-win11" : "");
         
-        let url = "";
-        if (currentSettings.bg_type === "custom") {
-          url = currentSettings.custom_bg_url;
-        } else {
-          url = GIF_PRESETS[currentSettings.gif_preset] || GIF_PRESETS.cyberpunk;
-        }
-        bgLayer.style.backgroundImage = `url("${url}")`;
+        bgLayer.style.display = "none";
+        startProceduralAnimation(currentSettings.gif_preset || "cyberpunk");
+
+        const opacity = (currentSettings.bg_opacity != null ? currentSettings.bg_opacity : 40) / 100;
+        const blur = currentSettings.bg_blur != null ? currentSettings.bg_blur : 0;
+        bgTint.style.background = `rgba(10, 14, 18, ${opacity})`;
+        if (pCanvas) pCanvas.style.filter = `blur(${blur}px)`;
+        
+        document.querySelectorAll(".gif-item-card").forEach(c => {
+          c.classList.toggle("active", c.getAttribute("data-gif") === currentSettings.gif_preset);
+        });
+      } else if (currentSettings.bg_type === "custom") {
+        bgContainer.classList.add("active");
+        document.body.classList.add("has-gif-bg");
+        document.body.className = "has-gif-bg" + (currentSettings.theme === "win11" ? " theme-win11" : "");
+        
+        stopProceduralAnimation();
+        bgLayer.style.display = "block";
+        bgLayer.style.backgroundImage = `url("${currentSettings.custom_bg_url}")`;
         const opacity = (currentSettings.bg_opacity != null ? currentSettings.bg_opacity : 40) / 100;
         const blur = currentSettings.bg_blur != null ? currentSettings.bg_blur : 0;
         bgTint.style.background = `rgba(10, 14, 18, ${opacity})`;
         bgLayer.style.filter = `blur(${blur}px)`;
-        
-        document.querySelectorAll(".gif-item-card").forEach(c => {
-          c.classList.toggle("active", currentSettings.bg_type === "gif" && c.getAttribute("data-gif") === currentSettings.gif_preset);
-        });
       } else {
+        stopProceduralAnimation();
+        if (bgLayer) bgLayer.style.display = "none";
         bgContainer.classList.remove("active");
         document.body.classList.remove("has-gif-bg");
         applyGradientVisual(currentSettings.gradient || "aurora");
@@ -1403,6 +1682,13 @@
       persistSettings();
     }
 
+    function updateFrostedBlur(val) {
+      currentSettings.frosted_glass_blur = parseInt(val, 10);
+      const valEl = document.getElementById("frostedBlurVal");
+      if (valEl) valEl.textContent = val + "px";
+      persistSettings();
+    }
+
     function openGradientModal() {
       document.getElementById("gradientModal").classList.add("show");
     }
@@ -1471,6 +1757,12 @@
         if (el) el.value = settings.bg_blur;
         const valEl = document.getElementById("bgBlurVal");
         if (valEl) valEl.textContent = settings.bg_blur + "px";
+      }
+      if (settings.frosted_glass_blur != null) {
+        const el = document.getElementById("sliderFrostedBlur");
+        if (el) el.value = settings.frosted_glass_blur;
+        const valEl = document.getElementById("frostedBlurVal");
+        if (valEl) valEl.textContent = settings.frosted_glass_blur + "px";
       }
       applyWallpaperVisual();
     };

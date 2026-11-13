@@ -1,6 +1,6 @@
 [package]
 name = "rustium"
-version = "1.1.1"
+version = "1.2.0"
 edition = "2021"
 authors = ["Rustium Core Team <rustium@example.com>"]
 description = "Современный и безопасный веб-браузер на Rust в стиле Material Design 3"
@@ -21,7 +21,7 @@ url = "2.5"
 futures-util = "0.3"
 tokio-util = "0.7"
 uuid = { version = "1.16", features = ["v4"] }
-windows-sys = { version = "0.52", features = ["Win32_UI_WindowsAndMessaging", "Win32_Foundation", "Win32_UI_Shell"] }
+windows-sys = { version = "0.52", features = ["Win32_UI_WindowsAndMessaging", "Win32_Foundation", "Win32_UI_Shell", "Win32_System_LibraryLoader"] }
 
 [build-dependencies]
 winres = "0.1"

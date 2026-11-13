@@ -4,9 +4,9 @@
 ; -------------------------------------------------------------
 
 #define MyAppName "Rustium"
-#define MyAppVersion "1.1.1"
+#define MyAppVersion "1.2.0"
 #define MyAppPublisher "Rustium Team"
-#define MyAppURL "https://github.com/rustium/rustium"
+#define MyAppURL "https://github.com/YaOblako/rustium"
 #define MyAppExeName "rustium.exe"
 
 [Setup]
@@ -17,7 +17,7 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-DefaultDirName={autopf}\{#MyAppName}
+DefaultDirName={pf}\{#MyAppName}
 DisableProgramGroupPage=yes
 DefaultGroupName={#MyAppName}
 OutputDir=dist
@@ -28,7 +28,7 @@ Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern
 ArchitecturesInstallIn64BitMode=x64compatible
-PrivilegesRequired=lowest
+PrivilegesRequired=admin
 PrivilegesRequiredOverridesAllowed=dialog
 
 [Languages]

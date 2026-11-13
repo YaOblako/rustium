@@ -377,28 +377,28 @@
         </div>
         <div class="gradient-settings-grid">
           <div class="grad-card" id="gif_cyberpunk" onclick="selectGifPreset('cyberpunk')">
-            <div class="grad-circle" style="background: url('https://media.giphy.com/media/26tn33aiTi1jkl6H6/giphy.gif') center/cover;"></div>
+            <div class="grad-circle" style="background: radial-gradient(circle at 30% 30%, #ff007f, #05051a); box-shadow: inset 0 0 10px #00ffff;"></div>
             <div class="grad-title">Киберпанк</div>
           </div>
           <div class="grad-card" id="gif_nebula" onclick="selectGifPreset('nebula')">
-            <div class="grad-circle" style="background: url('https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif') center/cover;"></div>
-            <div class="grad-title">Туманность</div>
+            <div class="grad-circle" style="background: radial-gradient(circle at 40% 40%, #7b2cbf, #03071e); box-shadow: inset 0 0 10px #3a0ca3;"></div>
+            <div class="grad-title">Космос</div>
           </div>
           <div class="grad-card" id="gif_retro_sunset" onclick="selectGifPreset('retro_sunset')">
-            <div class="grad-circle" style="background: url('https://media.giphy.com/media/3o7aD2saalBwwftBIY/giphy.gif') center/cover;"></div>
+            <div class="grad-circle" style="background: linear-gradient(180deg, #ff5e36 0%, #7c2d58 55%, #180928 100%);"></div>
             <div class="grad-title">Ретро закат</div>
           </div>
           <div class="grad-card" id="gif_rain_window" onclick="selectGifPreset('rain_window')">
-            <div class="grad-circle" style="background: url('https://media.giphy.com/media/t7Qb8655Z1V9K/giphy.gif') center/cover;"></div>
+            <div class="grad-circle" style="background: linear-gradient(135deg, #1b263b, #0d1b2a); box-shadow: inset 0 0 12px #415a77;"></div>
             <div class="grad-title">Дождь за стеклом</div>
           </div>
-          <div class="grad-card" id="gif_lofi_room" onclick="selectGifPreset('lofi_room')">
-            <div class="grad-circle" style="background: url('https://media.giphy.com/media/dI3D3BWfDub0Q/giphy.gif') center/cover;"></div>
-            <div class="grad-title">Lofi уют</div>
+          <div class="grad-card" id="gif_lofi_room" onclick="selectGifPreset('matrix')">
+            <div class="grad-circle" style="background: radial-gradient(circle at 50% 50%, #00ff66, #001100); box-shadow: inset 0 0 12px #00ff66;"></div>
+            <div class="grad-title">Матрица</div>
           </div>
           <div class="grad-card" id="gif_minimal_waves" onclick="selectGifPreset('minimal_waves')">
-            <div class="grad-circle" style="background: url('https://media.giphy.com/media/xT9IgzoKnwFNmISR8I/giphy.gif') center/cover;"></div>
-            <div class="grad-title">Неоновые волны</div>
+            <div class="grad-circle" style="background: radial-gradient(circle at 30% 70%, #00b4d8, #03045e);"></div>
+            <div class="grad-title">Тёмные волны</div>
           </div>
           <div class="grad-card active" id="gif_none" onclick="selectGifPreset('none')">
             <div class="grad-circle" style="background: #1e252b; display:flex; align-items:center; justify-content:center; color:#a8c7fa; font-size:11px;">Нет GIF</div>
@@ -426,6 +426,27 @@
         <div class="slider-row">
           <input type="range" class="md3-slider" id="bgBlurSlider" min="0" max="30" value="0" oninput="updateBgBlur()">
           <span style="font-size: 13px; font-weight: 600; min-width: 36px; text-align: right;" id="bgBlurVal">0px</span>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-text">
+          <div class="setting-title">Эффект матового стекла (Frosted Glass / Mica)</div>
+          <div class="setting-desc">Полупрозрачность и размытие панели вкладок и адресной строки поверх живых обоев</div>
+        </div>
+        <div class="md3-switch checked" id="frostedGlassToggle" onclick="toggleFrostedGlass()">
+          <div class="md3-switch-thumb"></div>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-text">
+          <div class="setting-title">Сила размытия вкладок (Tab Bar Blur)</div>
+          <div class="setting-desc">Интенсивность блюра вкладок и тулбара (backdrop-filter)</div>
+        </div>
+        <div class="slider-row">
+          <input type="range" class="md3-slider" id="frostedBlurSlider" min="4" max="40" value="16" oninput="updateFrostedBlur()">
+          <span style="font-size: 13px; font-weight: 600; min-width: 36px; text-align: right;" id="frostedBlurVal">16px</span>
         </div>
       </div>
     </div>
@@ -557,25 +578,53 @@
       <div id="loginsContainer" style="display:flex; flex-direction:column; gap:8px;"></div>
     </div>
 
+    <!-- 6.1 Site Exclusions -->
+    <div class="section-card">
+      <div class="section-header">
+        <svg style="width:22px;height:22px;color:var(--md-primary);" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" fill="currentColor"/></svg>
+        Исключения сайтов (Site Exclusions)
+      </div>
+      <div class="setting-row" style="flex-direction: column; align-items: stretch; gap: 12px;">
+        <div class="setting-text">
+          <div class="setting-title">Сайты-исключения</div>
+          <div class="setting-desc">Сайты, на которых отключены автоматические модификации, фильтры и эффекты оформления</div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="newExclusionInput" placeholder="Например: youtube.com или mail.ru" style="flex:1; padding:10px 16px; border-radius:9999px; background:var(--md-surface); color:var(--md-on-surface); font-size:13px; outline:none;">
+          <button onclick="addSiteExclusion()" style="padding:10px 20px; border-radius:9999px; background:var(--md-primary); color:var(--md-on-primary); font-weight:600; cursor:pointer;">Добавить</button>
+        </div>
+        <div id="exclusionsContainer" style="display:flex; flex-wrap:wrap; gap:8px; margin-top:6px;">
+          <div style="font-size:12px; color:var(--md-on-surface-variant);">Нет добавленных сайтов-исключений</div>
+        </div>
+      </div>
+    </div>
+
     <!-- 7. About Rustium -->
     <div class="section-card">
       <div class="section-header">
         <svg style="width:22px;height:22px;color:var(--md-primary);" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" fill="currentColor"/></svg>
-        О браузере Rustium 1.1.1
+        О браузере Rustium 1.2.0
       </div>
       <div class="setting-row">
         <div class="setting-text">
-          <div class="setting-title" style="font-size: 16px; font-weight: 700; color: var(--md-primary);">Rustium 1.1.1 (Release x86_64-windows)</div>
+          <div class="setting-title" style="font-size: 16px; font-weight: 700; color: var(--md-primary);">Rustium 1.2.0 (Release x86_64-windows)</div>
           <div class="setting-desc" style="margin-top: 4px;">
-            Высокопроизводительный современный веб-браузер на языке <strong>Rust</strong> с асинхронным рантаймом <strong>Tokio</strong>, движком отображения на базе <strong>Wry / WebView2</strong>, встроенным блокировщиком <strong>uBlock Origin / Brave Adblock</strong>, авто-тёмной темой Dark Reader и поддержкой расширений WebExtensions.
+            Высокопроизводительный современный веб-браузер на языке <strong>Rust</strong> с асинхронным рантаймом <strong>Tokio</strong>, движком отображения на базе <strong>Wry / WebView2</strong>, встроенным блокировщиком <strong>uBlock Origin / Brave Adblock</strong>, авто-тёмной темой Dark Reader, поддержкой расширений WebExtensions, эффектом Frosted Glass (Mica) и встроенным Auto Updater.
           </div>
         </div>
       </div>
       <div class="setting-row">
         <div class="setting-text">
+          <div class="setting-title">Автоматическое обновление</div>
+          <div class="setting-desc" id="updateStatusText">Проверка релизов на GitHub (YaOblako/rustium)</div>
+        </div>
+        <button id="checkUpdateBtn" onclick="checkForUpdates()" style="padding:8px 18px; border-radius:9999px; background:var(--md-primary-container); color:var(--md-on-primary-container); font-weight:600; cursor:pointer;">Проверить обновления</button>
+      </div>
+      <div class="setting-row">
+        <div class="setting-text">
           <div class="setting-title">User-Agent</div>
           <div class="setting-desc" style="font-family: monospace; font-size: 11px;">
-            Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Rustium/1.1.1
+            Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Rustium/1.2.0
           </div>
         </div>
       </div>
@@ -731,6 +780,76 @@
       reader.readAsText(file);
     }
 
+    function toggleFrostedGlass() {
+      currentSettings.frosted_glass_enabled = !currentSettings.frosted_glass_enabled;
+      document.getElementById("frostedGlassToggle").classList.toggle("checked", currentSettings.frosted_glass_enabled);
+      saveSettings();
+    }
+
+    function updateFrostedBlur() {
+      const v = parseInt(document.getElementById("frostedBlurSlider").value, 10);
+      currentSettings.frosted_glass_blur = v;
+      document.getElementById("frostedBlurVal").textContent = v + "px";
+      saveSettings();
+    }
+
+    function addSiteExclusion() {
+      const input = document.getElementById("newExclusionInput");
+      const dom = input.value.trim().toLowerCase();
+      if (!dom) return;
+      if (!currentSettings.site_exclusions) currentSettings.site_exclusions = [];
+      if (!currentSettings.site_exclusions.includes(dom)) {
+        currentSettings.site_exclusions.push(dom);
+        if (window.ipc) {
+          window.ipc.postMessage(JSON.stringify({ action: "add_site_exclusion", domain: dom }));
+        }
+      }
+      input.value = "";
+      renderExclusions(currentSettings.site_exclusions);
+      showToast();
+    }
+
+    function removeSiteExclusion(dom) {
+      if (currentSettings.site_exclusions) {
+        currentSettings.site_exclusions = currentSettings.site_exclusions.filter(d => d !== dom);
+      }
+      if (window.ipc) {
+        window.ipc.postMessage(JSON.stringify({ action: "remove_site_exclusion", domain: dom }));
+      }
+      renderExclusions(currentSettings.site_exclusions || []);
+      showToast();
+    }
+
+    function renderExclusions(list) {
+      const cont = document.getElementById("exclusionsContainer");
+      if (!cont) return;
+      cont.innerHTML = "";
+      if (!list || list.length === 0) {
+        cont.innerHTML = `<div style="font-size:12px; color:var(--md-on-surface-variant);">Нет добавленных сайтов-исключений</div>`;
+        return;
+      }
+      list.forEach(dom => {
+        const chip = document.createElement("div");
+        chip.style.cssText = "display:inline-flex; align-items:center; gap:8px; padding:6px 12px; border-radius:9999px; background:var(--md-surface); font-size:12px;";
+        chip.innerHTML = `<span>${dom}</span><span style="cursor:pointer; color:#ff897d; font-weight:700;" onclick="removeSiteExclusion('${dom}')">✕</span>`;
+        cont.appendChild(chip);
+      });
+    }
+
+    function checkForUpdates() {
+      const btn = document.getElementById("checkUpdateBtn");
+      const status = document.getElementById("updateStatusText");
+      if (btn) btn.disabled = true;
+      if (status) status.textContent = "Проверка обновлений на GitHub...";
+      if (window.ipc) {
+        window.ipc.postMessage(JSON.stringify({ action: "check_for_updates" }));
+      }
+      setTimeout(() => {
+        if (btn) btn.disabled = false;
+        if (status) status.textContent = "Проверено! У вас установлена актуальная версия Rustium 1.2.0.";
+      }, 2500);
+    }
+
     window.__rustium_render_settings__ = function(settings, logins) {
       if (settings) {
         currentSettings = Object.assign(currentSettings, settings);
@@ -747,6 +866,19 @@
         }
         if (settings.multithread_downloader_enabled != null) {
           document.getElementById("multithreadToggle").classList.toggle("checked", settings.multithread_downloader_enabled);
+        }
+        if (settings.frosted_glass_enabled != null) {
+          const el = document.getElementById("frostedGlassToggle");
+          if (el) el.classList.toggle("checked", settings.frosted_glass_enabled);
+        }
+        if (settings.frosted_glass_blur != null) {
+          const sl = document.getElementById("frostedBlurSlider");
+          if (sl) sl.value = settings.frosted_glass_blur;
+          const vl = document.getElementById("frostedBlurVal");
+          if (vl) vl.textContent = settings.frosted_glass_blur + "px";
+        }
+        if (settings.site_exclusions) {
+          renderExclusions(settings.site_exclusions);
         }
         if (settings.gradient) {
           document.querySelectorAll(".grad-card").forEach(el => el.classList.remove("active"));

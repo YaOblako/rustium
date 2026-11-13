@@ -1,37 +1,56 @@
-# Rustium
+# Rustium 1.2.0
 
-Rustium is a modern, privacy-focused desktop web browser built from the ground up in Rust. Designed with a strict Material Design 3 tonal surface architecture (Zero Borders / Strokes policy), Rustium integrates native request filtering powered by Brave's adblock engine, an intelligent Dark Reader engine with automated dark-surface detection, an accelerated multi-threaded download manager, WebExtensions support, and a local credential manager.
+Rustium is a modern, privacy-focused desktop web browser built from the ground up in Rust. Designed with a strict Material Design 3 tonal surface architecture (Zero Borders / Strokes policy) and native Windows 11 Frosted Glass (Mica / Acrylic) aesthetics, Rustium integrates native request filtering powered by Brave's adblock engine, an intelligent Dark Reader engine with automated dark-surface detection, an accelerated multi-threaded download manager, WebExtensions support, local credential management, offline procedural live wallpapers, and an integrated GitHub Releases auto-updater.
 
 ---
 
 ## Key Features
 
-### 1. Material Design 3 Tonal Surface Architecture (Zero Borders)
+### 1. Material Design 3 Tonal Surface & Frosted Glass Architecture
 - **Zero Border Policy:** Elements, tabs, cards, omnibox fields, dialogs, and sidebars are distinguished solely through Material Design 3 surface tonal elevations and state layers (`surfaceContainerLowest` through `surfaceContainerHighest`). No artificial borders, divider lines, or strokes are used.
+- **Windows 11 Frosted Glass (Mica / Acrylic):** Dynamic translucent tab bar and navigation toolbar with real-time backdrop blur (`backdrop-filter: blur(16px)`). Animated wallpapers and desktop themes shine smoothly behind the tabs. Includes customizable blur sliders and per-site exclusion controls.
 - **Custom Integrated Titlebar:** Frameless window design where tabs sit directly at the top boundary of the window alongside native-feeling Windows 11 window controls (Minimize, Maximize, Close) and interactive drag zones.
 - **Multi-Theme Engine:**
   - Material Design 3 Dark (Default)
   - Material Design 3 Light
+  - Windows 11 Mica & Acrylic
   - AMOLED Black (Pure black for OLED displays)
   - Catppuccin Mocha (Developer-centric pastel palette)
   - Nord Polar Night (Arctic slate theme)
+- **Offline 60 FPS Procedural Live Wallpapers:** Built-in HTML5 Canvas and mathematical shaders that run 100% locally with 0 bandwidth usage and no external hotlink failures:
+  - Cyberpunk Neon Rain & Perspective Grid
+  - 3D Warp Starfield & Deep Space Nebula
+  - 80s Retro Sunset Synthwave
+  - Window Rain Streaks with Dynamic Reflections
+  - Matrix Digital Code Stream
+  - Dark Minimal Oceanic Waves
+  - Custom local file upload (`.gif`, `.webp`, `.png`, `.jpg`) and external URL support.
 - **Dynamic Accent Generation:** Real-time generation of Primary, On-Primary, and Primary Container tonal palettes from customizable seed colors.
 - **Tactile State Layers:** Custom Material Design 3 click ripple animations and hover/active feedback across all interactive controls.
 
-### 2. Built-in Ad & Tracker Protection (Brave Engine + uBlock Origin)
+### 2. Auto-Updater & GitHub Actions CI/CD Deployment
+- **Automated GitHub Releases Workflow:** Pushing a version tag (e.g. `v1.2.0`) automatically triggers `.github/workflows/build-and-release.yml`, compiling the release binary in Rust, building the Inno Setup installer, and publishing `Rustium-Setup-v1.2.0.exe` directly to GitHub Releases.
+- **Native In-App Auto-Updater:** Rustium periodically checks the GitHub Releases API in the background. When a new version is detected, an update badge appears on the toolbar, allowing the user to download and run the installer with a single click.
+
+### 3. AMD FX & Legacy Hardware Compatibility
+- **Renderer Code Integrity Fix:** Bypasses Chromium `STATUS_INVALID_IMAGE_HASH` crashes on AMD FX-6300 and older processors by injecting `--disable-features=RendererCodeIntegrity --disable-gpu-process-crash-limit --ignore-gpu-blocklist`.
+- **Relocated User Data Directory:** Relocates WebView2 cache and profile storage to `%LOCALAPPDATA%\Rustium\WebView2Data` to prevent permission errors when installed in `C:\Program Files`.
+- **Native Win32 Icon Attachment:** Explicitly associates the Windows Application User Model ID (`SetCurrentProcessExplicitAppUserModelID`) and registers high-resolution 48x48 / 16x16 window icons via Win32 messages (`WM_SETICON`) so the icon is always preserved in the Windows 11 Taskbar and Start menu.
+
+### 4. Built-in Ad & Tracker Protection (Brave Engine + uBlock Origin)
 - High-performance filtering engine utilizing `adblock-rust` (the filtering engine powering the Brave Browser).
 - Support for EasyList filter rules, network blocking of tracking scripts, analytics, and intrusive ad networks.
 - Cosmetic filter injection via dynamic CSS rules and live `MutationObserver` ad removal.
 - **Scam & Phishing Interstitial Warning:** Integrated uBlock Origin badware and phishing domain scanner. Intercepts malicious URLs before navigation and presents a full-screen interstitial warning allowing safe return or explicit override.
 - Omnibox shield badge with live blocked-request counter and per-domain whitelisting.
 
-### 3. Intelligent Dark Reader Engine
+### 5. Intelligent Dark Reader Engine
 - Dynamic client-side contrast and luminance inversion engine.
 - **Automated Native Dark Detection:** Inspects document color schemes and computed background luminance (`0.2126R + 0.7152G + 0.0722B < 55`) to identify pre-existing dark websites (such as YouTube in dark mode, Discord, and GitHub). Pre-darkened sites are preserved to prevent double-inversion.
 - Preserves natural colors for images (`<img>`), video players (`<video>`), `<canvas>`, and vector icons (`<svg>`).
 - Real-time adjustment popover with per-site toggles, brightness control (50%–150%), and contrast control (50%–150%).
 
-### 4. Accelerated Multi-Threaded Download Manager
+### 6. Accelerated Multi-Threaded Download Manager
 - Concurrent file downloader powered by `tokio` and `reqwest`.
 - Automatically queries servers via `HEAD` and probe requests for `Accept-Ranges: bytes` support and `Content-Length`.
 - Pre-allocates files and splits large transfers into 2 to 16 concurrent byte ranges using non-blocking asynchronous tasks and localized file seeks (`SeekFrom::Start`).
@@ -39,17 +58,17 @@ Rustium is a modern, privacy-focused desktop web browser built from the ground u
 - Comprehensive control suite: real-time speed monitoring, pause, resume, cancel with disk cleanup, open file with default application, and show in folder.
 - Background task protection: Warns the user with a confirmation dialog before exiting if active transfers are running.
 
-### 5. WebExtensions Compatibility
+### 7. WebExtensions Compatibility
 - Unpacked extension loader supporting standard `manifest.json` configurations (Manifest V2 and V3).
 - Injects custom user scripts (`content_scripts`) and stylesheets into matched URL patterns.
 - Toolbar popover for extensions displaying active status, permissions overview, individual enable/disable switches, and extension management.
 
-### 6. Local Credential & Password Manager
+### 8. Local Credential & Password Manager
 - Embedded SQLite storage for saved logins and credentials.
 - Universal CSV password importer compatible with exports from Google Chrome, Mozilla Firefox, and Microsoft Edge.
 - Built-in credentials viewer in Settings with options to view, manage, and delete stored entries.
 
-### 7. Developer Tools & Custom Context Menu
+### 9. Developer Tools & Custom Context Menu
 - Native Chromium / Edge DevTools integration accessible via `F12` or the custom context menu.
 - Material Design 3 right-click context menu offering Back, Forward, Reload, Copy Link Address, and Inspect Element.
 
@@ -177,7 +196,7 @@ To compile the standalone Windows setup installer using Inno Setup:
 & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
 ```
 
-The resulting setup executable is generated at `dist\Rustium-Setup-v1.1.1.exe`.
+The resulting setup executable is generated at `dist\Rustium-Setup-v1.2.0.exe`.
 
 ---
 

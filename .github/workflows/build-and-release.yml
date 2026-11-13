@@ -1,0 +1,72 @@
+name: Build & Release Rustium
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build Windows Release & Installer
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build Rustium Binary (Release)
+        run: cargo build --release
+
+      - name: Download Runtime Prerequisites for Bundled Installer
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force -Path redist
+          if (!(Test-Path "redist\vc_redist.x64.exe")) {
+            Write-Host "Downloading Visual C++ Redistributable..."
+            Invoke-WebRequest -Uri "https://aka.ms/vs/17/release/vc_redist.x64.exe" -OutFile "redist\vc_redist.x64.exe"
+          }
+          if (!(Test-Path "redist\MicrosoftEdgeWebview2Setup.exe")) {
+            Write-Host "Downloading Microsoft Edge WebView2 Setup..."
+            Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?LinkId=2124703" -OutFile "redist\MicrosoftEdgeWebview2Setup.exe"
+          }
+
+      - name: Install Inno Setup
+        shell: powershell
+        run: |
+          if (!(Test-Path "C:\Program Files (x86)\Inno Setup 6\ISCC.exe")) {
+            choco install innosetup --yes --no-progress
+          }
+
+      - name: Compile Inno Setup Installer
+        shell: powershell
+        run: |
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
+
+      - name: Generate Checksums
+        shell: powershell
+        run: |
+          Get-FileHash dist\*.exe -Algorithm SHA256 | ForEach-Object { "$($_.Hash)  $($_.Path | Split-Path -Leaf)" } | Out-File -Encoding utf8 dist\checksums.sha256
+          Get-Content dist\checksums.sha256
+
+      - name: Upload Installer to GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            dist/*.exe
+            dist/checksums.sha256
+          generate_release_notes: true
+          draft: false
+          prerelease: false
